@@ -1,0 +1,4 @@
+D:/CLion/Projects/Other/Engine12/cmake-build-debug/CMakeFiles/Engine12.dir
+D:/CLion/Projects/Other/Engine12/cmake-build-debug/CMakeFiles/copy_resources.dir
+D:/CLion/Projects/Other/Engine12/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/CLion/Projects/Other/Engine12/cmake-build-debug/CMakeFiles/rebuild_cache.dir
