@@ -6,20 +6,21 @@
 #include <string>
 #include <glad/glad.h>
 
-using namespace std;
-
 Shader::Shader(const GLchar* vertexFile, const GLchar* fragmentFile) {
-    string vertexCodeRaw, fragmentCodeRaw;
-    ifstream vertexShaderFileStream, fragmentShaderFileStream;
+    std::string vertexCodeRaw;
+    std::string fragmentCodeRaw;
 
-    vertexShaderFileStream.exceptions(ifstream::failbit);
-    fragmentShaderFileStream.exceptions(ifstream::failbit);
+    std::ifstream vertexShaderFileStream;
+    std::ifstream fragmentShaderFileStream;
+    vertexShaderFileStream.exceptions(std::ifstream::failbit);
+    fragmentShaderFileStream.exceptions(std::ifstream::failbit);
 
     try {
         vertexShaderFileStream.open(vertexFile);
         fragmentShaderFileStream.open(fragmentFile);
 
-        stringstream vertexShaderStringStream, fragmentShaderStringStream;
+        std::stringstream vertexShaderStringStream;
+        std::stringstream fragmentShaderStringStream;
         vertexShaderStringStream << vertexShaderFileStream.rdbuf();
         fragmentShaderStringStream << fragmentShaderFileStream.rdbuf();
 
@@ -28,8 +29,8 @@ Shader::Shader(const GLchar* vertexFile, const GLchar* fragmentFile) {
 
         vertexCodeRaw = vertexShaderStringStream.str();
         fragmentCodeRaw = fragmentShaderStringStream.str();
-    } catch (ifstream::failure& e) {
-        cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
+    } catch (std::ifstream::failure& e) {
+        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
         return;
     }
 
@@ -48,7 +49,7 @@ Shader::Shader(const GLchar* vertexFile, const GLchar* fragmentFile) {
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-        cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
         return;
     }
 
@@ -60,7 +61,7 @@ Shader::Shader(const GLchar* vertexFile, const GLchar* fragmentFile) {
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-        cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
+        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         return;
     }
 
@@ -72,7 +73,7 @@ Shader::Shader(const GLchar* vertexFile, const GLchar* fragmentFile) {
     glGetProgramiv(this->programID, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(this->programID, 512, nullptr, infoLog);
-        cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << endl;
+        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         return;
     }
 

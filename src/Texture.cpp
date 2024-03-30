@@ -4,14 +4,12 @@
 #include <glad/glad.h>
 #include <SOIL/SOIL.h>
 
-using namespace std;
-
 Texture::Texture(const GLchar* textureFile) {
     int textureWidth, textureHeight;
     unsigned char* image = SOIL_load_image(textureFile, &textureWidth, &textureHeight, 0, SOIL_LOAD_RGB);
 
     if (!image) {
-        cerr << "ERROR::TEXTURE::LOAD_FAILED" << SOIL_last_result() << endl;
+        std::cerr << "ERROR::TEXTURE::LOAD_FAILED" << SOIL_last_result() << std::endl;
         return;
     }
 
