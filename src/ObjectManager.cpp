@@ -7,16 +7,42 @@
 #include <glad/glad.h>
 #include "Object.h"
 
-using namespace std;
-
 ObjectManager::ObjectManager():
-    maxObjects(numeric_limits<GLuint>::max()),
-    objectsCount(0),
-    nextFreeID(1) {}
+    maxObjects(),
+    objectsCount(),
+    nextFreeID() {}
+
+ObjectManager::~ObjectManager() {
+    freeIDs.clear();
+    for (auto& pair : objects) {
+        delete pair.second;
+    }
+    objects.clear();
+    while (!objectsIDsToDelete.empty()) {
+        objectsIDsToDelete.pop();
+    }
+    while (!objectsIDsToCreate.empty()) {
+        objectsIDsToCreate.pop();
+    }
+}
 
 auto ObjectManager::getInstance() -> ObjectManager& {
     static ObjectManager instance;
     return instance;
+}
+
+auto ObjectManager::initialize() -> void {
+    maxObjects = std::numeric_limits<GLuint>::max();
+    objectsCount = 0;
+    nextFreeID = 1;
+    freeIDs.clear();
+    objects.clear();
+    while (!objectsIDsToDelete.empty()) {
+        objectsIDsToDelete.pop();
+    }
+    while (!objectsIDsToCreate.empty()) {
+        objectsIDsToCreate.pop();
+    }
 }
 
 auto ObjectManager::update() -> void {
@@ -44,7 +70,7 @@ auto ObjectManager::createObject() -> GLuint {
     // If we free some IDs, we can book them for new Objects
     if (objects.size() == maxObjects) {
         if (objectsIDsToDelete.empty()) {
-            cerr << "ERROR::OBJECT_MANAGER::MAX_OBJECT_COUNT_REACHED" << endl;
+            std::cerr << "ERROR::OBJECT_MANAGER::MAX_OBJECT_COUNT_REACHED" << std::endl;
             return 0;
         } else {
             ID = objectsIDsToDelete.front();
@@ -65,7 +91,7 @@ auto ObjectManager::createObject() -> GLuint {
 
 auto ObjectManager::deleteObject(GLuint ID) -> void {
     if (objects.find(ID) == objects.end()) {
-        cerr << "ERROR::OBJECT_MANAGER::INVALID_OBJECT_ID\n" << ID << endl;
+        std::cerr << "ERROR::OBJECT_MANAGER::INVALID_OBJECT_ID\n" << ID << std::endl;
         return;
     }
     objectsIDsToDelete.push(ID);
