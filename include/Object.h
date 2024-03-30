@@ -4,8 +4,7 @@
 
 class Object {
 public:
-    Object();
-    Object(GLuint ID);
+    explicit Object(GLuint ID);
 
     auto getID() const -> GLuint;
 
