@@ -5,7 +5,7 @@
 class EngineException : public std::exception {
 public:
     explicit EngineException(const char* msg);
-    const char* what() const noexcept override;
+    auto what() const noexcept -> const char* override;
 
 private:
     const char* message;
