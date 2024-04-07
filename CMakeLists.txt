@@ -18,8 +18,7 @@ set(RESOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
 # Add include directory for GLFW and GLAD and .IPP files
-include_directories(${INCLUDE_DIR})
-include_directories(${TEMPLATE_DIR})
+include_directories(${INCLUDE_DIR} ${TEMPLATE_DIR})
 
 # NOTE: Rewrite link_libraries and collect_files to one function
 #       Syntax: collect_files(DIR EXT VAR)
@@ -67,7 +66,7 @@ collect_files(${TEMPLATE_DIR} "tpp" TPP_SOURCES)
 # Linking source files to .EXE
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${H_SOURCES} ${TPP_SOURCES} ${C_SOURCES})
 
-#link_libraries(${LIBS_DIR})
+# Linking libs
 collect_files(${LIBS_DIR} "a" LIB_SOURCES)
 target_link_libraries(${PROJECT_NAME} ${LIB_SOURCES} -lopengl32)
 
