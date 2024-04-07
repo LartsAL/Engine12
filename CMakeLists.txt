@@ -3,17 +3,23 @@ project(Engine12)
 
 set(CMAKE_CXX_STANDARD 23)
 
+
+# TODO: add subdirs like "bitmasks", "systems" and "managers" to include_directories()
+
+
 # Paths to sources and resources files
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(TEMPLATE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/template)
 
 set(LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
 set(RESOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 set(RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/resources)
 
-# Add include directory for GLFW and GLAD
+# Add include directory for GLFW and GLAD and .IPP files
 include_directories(${INCLUDE_DIR})
+include_directories(${TEMPLATE_DIR})
 
 # NOTE: Rewrite link_libraries and collect_files to one function
 #       Syntax: collect_files(DIR EXT VAR)
@@ -56,9 +62,10 @@ endfunction()
 collect_files(${SRC_DIR} "cpp" CPP_SOURCES)
 collect_files(${SRC_DIR} "c" C_SOURCES)
 collect_files(${INCLUDE_DIR} "h" H_SOURCES)
+collect_files(${TEMPLATE_DIR} "tpp" TPP_SOURCES)
 
 # Linking source files to .EXE
-add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${H_SOURCES} ${C_SOURCES})
+add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${H_SOURCES} ${TPP_SOURCES} ${C_SOURCES})
 
 #link_libraries(${LIBS_DIR})
 collect_files(${LIBS_DIR} "a" LIB_SOURCES)
