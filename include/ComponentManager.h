@@ -15,6 +15,7 @@ public:
 
     auto initialize() -> void;
     auto update() -> void;
+    auto shutdown() -> void;
 
     template<class ComponentType>
     auto addComponent(GLuint ID) -> void;

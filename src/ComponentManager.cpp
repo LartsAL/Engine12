@@ -37,6 +37,20 @@ auto ComponentManager::update() -> void {
     }
 }
 
+auto ComponentManager::shutdown() -> void {
+    bitmasks.clear();
+    for (auto& pair : components) {
+        pair.second.clear();
+    }
+    components.clear();
+    while (!componentsToAdd.empty()) {
+        componentsToAdd.pop();
+    }
+    while (!componentsToRemove.empty()) {
+        componentsToRemove.pop();
+    }
+}
+
 auto ComponentManager::clearComponents(GLuint ID) -> void {
     components[ID].clear();
 }
