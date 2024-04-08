@@ -14,9 +14,6 @@ ObjectManager::ObjectManager():
 
 ObjectManager::~ObjectManager() {
     freeIDs.clear();
-    for (auto& pair : objects) {
-        delete pair.second;
-    }
     objects.clear();
     while (!objectsIDsToDelete.empty()) {
         objectsIDsToDelete.pop();
@@ -50,19 +47,24 @@ auto ObjectManager::update() -> void {
     while (!objectsIDsToDelete.empty()) {
         GLuint ID = objectsIDsToDelete.front();
         objectsIDsToDelete.pop();
-        Object* obj = objects[ID];
         objects.erase(ID);
-        delete obj;
         freeIDs.insert(ID);
     }
     // Create all objects from queue
     while (!objectsIDsToCreate.empty()) {
         GLuint ID = objectsIDsToCreate.front();
         objectsIDsToCreate.pop();
-        auto* createdObject = new Object(ID);
+        auto createdObject = std::make_shared<Object>(ID);
         objects[ID] = createdObject;
     }
     objectsCount = objects.size();
+}
+
+auto ObjectManager::shutdown() -> void {
+    deleteAllObjects();
+    while (!objectsIDsToCreate.empty()) {
+        objectsIDsToCreate.pop();
+    }
 }
 
 auto ObjectManager::createObject() -> GLuint {
@@ -70,7 +72,7 @@ auto ObjectManager::createObject() -> GLuint {
     // If we free some IDs, we can book them for new Objects
     if (objects.size() == maxObjects) {
         if (objectsIDsToDelete.empty()) {
-            std::cerr << "ERROR::OBJECT_MANAGER::MAX_OBJECT_COUNT_REACHED" << std::endl;
+            std::cerr << "ERROR::OBJECT_MANAGER::CREATE_OBJECT::MAX_OBJECT_COUNT_REACHED" << std::endl;
             return 0;
         } else {
             ID = objectsIDsToDelete.front();
@@ -91,10 +93,19 @@ auto ObjectManager::createObject() -> GLuint {
 
 auto ObjectManager::deleteObject(GLuint ID) -> void {
     if (objects.find(ID) == objects.end()) {
-        std::cerr << "ERROR::OBJECT_MANAGER::INVALID_OBJECT_ID\n" << ID << std::endl;
+        std::cerr << "ERROR::OBJECT_MANAGER::DELETE_OBJECT::INVALID_OBJECT_ID\n" << ID << std::endl;
         return;
     }
     objectsIDsToDelete.push(ID);
+}
+
+auto ObjectManager::deleteAllObjects() -> void {
+    objects.clear();
+    nextFreeID = 0;
+    freeIDs.clear();
+    while (!objectsIDsToDelete.empty()) {
+        objectsIDsToDelete.pop();
+    }
 }
 
 auto ObjectManager::getMaxObjects() const -> GLuint {
