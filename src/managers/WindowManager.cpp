@@ -1,13 +1,15 @@
-#include "WindowManager.h"
+#include "managers/WindowManager.h"
 
 WindowManager::WindowManager() = default;
+
+WindowManager::~WindowManager() = default;
 
 auto WindowManager::getInstance() -> WindowManager& {
     static WindowManager instance;
     return instance;
 }
 
-auto WindowManager::initialize(int width, int height, const char* title) -> bool {
+auto WindowManager::initialize() -> void {
 
 }
 

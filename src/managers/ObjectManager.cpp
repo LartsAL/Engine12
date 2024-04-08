@@ -1,10 +1,10 @@
-#include "ObjectManager.h"
+#include "managers/ObjectManager.h"
 
 #include <iostream>
 #include <map>
 #include <set>
 #include <limits>
-#include <glad/glad.h>
+#include "glad/glad.h"
 #include "Object.h"
 
 ObjectManager::ObjectManager():

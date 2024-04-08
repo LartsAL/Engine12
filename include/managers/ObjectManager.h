@@ -4,7 +4,7 @@
 #include <set>
 #include <memory>
 #include <queue>
-#include <glad/glad.h>
+#include "glad/glad.h"
 #include "Object.h"
 
 class ObjectManager {

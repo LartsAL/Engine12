@@ -6,7 +6,7 @@
 #include <bitset>
 #include <limits>
 #include <memory>
-#include <glad/glad.h>
+#include "glad/glad.h"
 #include "components/Component.h"
 
 class ComponentManager {
