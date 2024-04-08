@@ -13,7 +13,7 @@ public:
 
     auto initialize() -> void;
     auto update() -> void;
-    auto shutdown() -> void;  // Delete all objects and clear variables
+    auto shutdown() -> void;
 
     auto createObject() -> GLuint;
     auto deleteObject(GLuint ID) -> void;
