@@ -1,14 +1,27 @@
 #pragma once
 
+#include "managers/WindowManager.h"
+#include "managers/FileManager.h"
+#include "managers/ObjectManager.h"
+#include "managers/ComponentManager.h"
+// #include "AllOtherManagers.h"
+// ...
+
 class Core {
 public:
-    Core();
-    ~Core();
+    static auto getInstance() -> Core&;
 
-    auto initialize() -> bool;
-    auto run() -> void;
+    auto initialize() -> void;
+    auto update() -> void;
     auto shutdown() -> void;
 
 private:
-    auto update() -> void;
+    Core();
+    ~Core();
+
+    // Managers
+    WindowManager& windowManager;
+    FileManager& fileManager;
+    ObjectManager& objectManager;
+    ComponentManager& componentManager;
 };
