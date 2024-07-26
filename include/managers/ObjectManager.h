@@ -1,11 +1,16 @@
 #pragma once
 
-#include <map>
 #include <set>
-#include <memory>
 #include <queue>
-#include "glad/glad.h"
-#include "Object.h"
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
+#include <glad/glad.h>
+
+// ! Deprecated, candidate for deletion:
+// #include "Object.h"
+
+using ObjectID = GLuint;
 
 class ObjectManager {
 public:
@@ -15,8 +20,8 @@ public:
     auto update() -> void;
     auto shutdown() -> void;
 
-    auto createObject() -> GLuint;
-    auto deleteObject(GLuint ID) -> void;
+    auto createObject() -> ObjectID;
+    auto deleteObject(ObjectID ID) -> void;
     auto deleteAllObjects() -> void;
     auto getMaxObjects() const -> GLuint;
     auto getObjectsCount() const -> GLuint;
@@ -25,11 +30,15 @@ private:
     ObjectManager();
     ~ObjectManager();
 
-    GLuint maxObjects;                                       // Maximum existing objects
-    GLuint objectsCount;                                     // Number of existing objects
-    GLuint nextFreeID;                                       // Next available ID for new Object
-    std::set<GLuint> freeIDs;                                // Reusable IDs freed from deleted Objects
-    std::map<GLuint, std::shared_ptr<Object>> objects;       // ID -> Object, map of all existing Objects
-    std::queue<GLuint> objectsIDsToDelete;                   // Objects which will be deleted during update
-    std::queue<GLuint> objectsIDsToCreate;                   // Objects which will be created during update
+    GLuint maxObjects;                          // Maximum existing objects
+    GLuint objectsCount;                        // Number of existing objects
+    ObjectID nextFreeID;                        // Next available ID for new Object
+    std::set<ObjectID> freeIDs;                 // Pool of reusable IDs freed from deleted Objects
+    std::unordered_set<ObjectID> objects;       // Set of existing Objects
+    std::queue<ObjectID> objectsIDsToDelete;    // Objects which will be deleted during update
+    std::queue<ObjectID> objectsIDsToReuse;     // If we book some IDs from objectsIDsToDelete, they'll go here to prevent double book of the same ID
+    std::queue<ObjectID> objectsIDsToCreate;    // Objects which will be created during update
+
+    // ! Deprecated, candidate for deletion:
+    // std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;    // ID -> Object, map of all existing Objects
 };

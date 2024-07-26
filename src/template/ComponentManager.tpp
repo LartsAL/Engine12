@@ -2,8 +2,18 @@
 #include <type_traits>
 #include "components/Component.h"
 
+// TODO: Achtung! Test section
 template<class ComponentType>
-auto ComponentManager::addComponent(GLuint ID) -> void {
+auto ComponentManager::registerComponent(std::string&& componentName) -> void {
+    void (*pAdd)(GLuint) = &addComponent<ComponentType>;
+    // other satanic stuff
+
+    allComponentsMap.emplace(componentName, []() -> void { return std::make_shared<ComponentType>(); });
+}
+// TODO: Achtung! Test section
+
+template<class ComponentType>
+auto ComponentManager::addComponent(ObjectID ID) -> void {
     if (!std::is_base_of<Component, ComponentType>::value) {
         std::cerr << "ERROR::COMPONENT_MANAGER::ADD_COMPONENT::INVALID_COMPONENT_TYPE" << std::endl;
         return;

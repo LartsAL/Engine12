@@ -1,5 +1,8 @@
+# Project directories
 .idea/
 cmake-build-debug/
+cmake-build-release/
 
+# Other stuff
 TEMP
 NOTES.cpp

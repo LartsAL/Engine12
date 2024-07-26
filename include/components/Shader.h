@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include "components/Component.h"
 
-class Shader : public Component{
+class Shader : public Component {
 public:
     GLuint shaderProgramID;
 

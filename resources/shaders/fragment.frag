@@ -2,7 +2,6 @@
 
 out vec4 color;
 
-in vec3 myColor;
 in vec2 textureCoord;
 
 uniform sampler2D myTexture1;

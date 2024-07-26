@@ -2,6 +2,7 @@
 
 #include <limits>
 
+// ! Deprecated, candidate for deletion:
 GLuint ComponentManager::nextComponentBitPos = 0;
 
 ComponentManager::ComponentManager():
@@ -26,12 +27,12 @@ auto ComponentManager::initialize() -> void {
 
 auto ComponentManager::update() -> void {
     while (!componentsToAdd.empty()) {
-        std::pair pair = componentsToAdd.front();
+        auto pair = componentsToAdd.front();
         bitmasks[pair.first] |= pair.second;
         componentsToAdd.pop();
     }
     while (!componentsToRemove.empty()) {
-        std::pair pairInfo = componentsToRemove.front();
+        auto pairInfo = componentsToRemove.front();
         bitmasks[pairInfo.first] &= ~pairInfo.second;
         componentsToRemove.pop();
     }
@@ -51,15 +52,14 @@ auto ComponentManager::shutdown() -> void {
     }
 }
 
+// TODO: Achtung! Test section
+auto ComponentManager::addComponent(GLuint ID, std::string&& componentName) -> void {
+    std::shared_ptr<Component> component = allComponentsMap[componentName]();
+    components[ID].emplace(component->ID, component);
+    componentsToAdd.emplace(ID, component->bitmask);
+}
+// TODO: Achtung! Test section
+
 auto ComponentManager::clearComponents(GLuint ID) -> void {
     components[ID].clear();
 }
-
-// Template functions
-//     auto addComponent(GLuint ID) -> void;
-//     auto removeComponent(GLuint ID) -> void;
-//     auto getComponent(GLuint ID) -> std::shared_ptr<ComponentType>;
-//     auto hasComponent(GLuint ID) -> bool;
-//     auto getAllComponentsOfType() -> std::vector<std::shared_ptr<ComponentType>>;
-//     auto getAllObjectsWithComponent() -> std::vector<GLuint>;
-// are defined in ComponentManager.tpp

@@ -548,15 +548,15 @@ extern "C" {
  *  If this bit is set one or more Super keys were held down.
  */
 #define GLFW_MOD_SUPER           0x0008
-/*! @brief If this bit is set the Caps Lock key is enabled.
+/*! @brief If this bit is set the Caps Lock key is active.
  *
- *  If this bit is set the Caps Lock key is enabled and the @ref
+ *  If this bit is set the Caps Lock key is active and the @ref
  *  GLFW_LOCK_KEY_MODS input mode is set.
  */
 #define GLFW_MOD_CAPS_LOCK       0x0010
-/*! @brief If this bit is set the Num Lock key is enabled.
+/*! @brief If this bit is set the Num Lock key is active.
  *
- *  If this bit is set the Num Lock key is enabled and the @ref
+ *  If this bit is set the Num Lock key is active and the @ref
  *  GLFW_LOCK_KEY_MODS input mode is set.
  */
 #define GLFW_MOD_NUM_LOCK        0x0020
@@ -3185,7 +3185,7 @@ GLFWAPI void glfwWindowHintString(int hint, const char* value);
  *  @remark @macos On OS X 10.10 and later the window frame will not be rendered
  *  at full resolution on Retina displays unless the
  *  [GLFW_SCALE_FRAMEBUFFER](@ref GLFW_SCALE_FRAMEBUFFER_hint)
- *  hint is `GLFW_TRUE` and the `NSHighResolutionCapable` key is enabled in the
+ *  hint is `GLFW_TRUE` and the `NSHighResolutionCapable` key is active in the
  *  application bundle's `Info.plist`.  For more information, see
  *  [High Resolution Guidelines for OS X][hidpi-guide] in the Mac Developer
  *  Library.  The GLFW test and example programs use a custom `Info.plist`
@@ -4692,21 +4692,21 @@ GLFWAPI int glfwGetInputMode(GLFWwindow* window, int mode);
  *
  *  If the mode is `GLFW_STICKY_KEYS`, the value must be either `GLFW_TRUE` to
  *  enable sticky keys, or `GLFW_FALSE` to disable it.  If sticky keys are
- *  enabled, a key press will ensure that @ref glfwGetKey returns `GLFW_PRESS`
+ *  active, a key press will ensure that @ref glfwGetKey returns `GLFW_PRESS`
  *  the next time it is called even if the key had been released before the
  *  call.  This is useful when you are only interested in whether keys have been
  *  pressed but not when or in which order.
  *
  *  If the mode is `GLFW_STICKY_MOUSE_BUTTONS`, the value must be either
  *  `GLFW_TRUE` to enable sticky mouse buttons, or `GLFW_FALSE` to disable it.
- *  If sticky mouse buttons are enabled, a mouse button press will ensure that
+ *  If sticky mouse buttons are active, a mouse button press will ensure that
  *  @ref glfwGetMouseButton returns `GLFW_PRESS` the next time it is called even
  *  if the mouse button had been released before the call.  This is useful when
  *  you are only interested in whether mouse buttons have been pressed but not
  *  when or in which order.
  *
  *  If the mode is `GLFW_LOCK_KEY_MODS`, the value must be either `GLFW_TRUE` to
- *  enable lock key modifier bits, or `GLFW_FALSE` to disable them.  If enabled,
+ *  enable lock key modifier bits, or `GLFW_FALSE` to disable them.  If active,
  *  callbacks that receive modifier bits will also have the @ref
  *  GLFW_MOD_CAPS_LOCK bit set when the event was generated with Caps Lock on,
  *  and the @ref GLFW_MOD_NUM_LOCK bit when Num Lock was on.
@@ -4868,7 +4868,7 @@ GLFWAPI int glfwGetKeyScancode(int key);
  *  specified window.  The returned state is one of `GLFW_PRESS` or
  *  `GLFW_RELEASE`.  The action `GLFW_REPEAT` is only reported to the key callback.
  *
- *  If the @ref GLFW_STICKY_KEYS input mode is enabled, this function returns
+ *  If the @ref GLFW_STICKY_KEYS input mode is active, this function returns
  *  `GLFW_PRESS` the first time you call it for a key that was pressed, even if
  *  that key has already been released.
  *
@@ -4907,7 +4907,7 @@ GLFWAPI int glfwGetKey(GLFWwindow* window, int key);
  *  to the specified window.  The returned state is one of `GLFW_PRESS` or
  *  `GLFW_RELEASE`.
  *
- *  If the @ref GLFW_STICKY_MOUSE_BUTTONS input mode is enabled, this function
+ *  If the @ref GLFW_STICKY_MOUSE_BUTTONS input mode is active, this function
  *  returns `GLFW_PRESS` the first time you call it for a mouse button that was
  *  pressed, even if that mouse button has already been released.
  *
@@ -6450,7 +6450,7 @@ GLFWAPI int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhys
  *
  *  If the required window surface creation instance extensions are not
  *  available or if the specified instance was not created with these extensions
- *  enabled, this function returns `VK_ERROR_EXTENSION_NOT_PRESENT` and
+ *  active, this function returns `VK_ERROR_EXTENSION_NOT_PRESENT` and
  *  generates a @ref GLFW_API_UNAVAILABLE error.  Call @ref
  *  glfwGetRequiredInstanceExtensions to check what instance extensions are
  *  required.

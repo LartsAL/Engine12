@@ -1,11 +1,8 @@
 #include "managers/ObjectManager.h"
 
-#include <iostream>
-#include <map>
-#include <set>
 #include <limits>
-#include "glad/glad.h"
-#include "Object.h"
+#include "objects/Object.h"
+#include "Error.h"
 
 ObjectManager::ObjectManager():
     maxObjects(),
@@ -37,25 +34,39 @@ auto ObjectManager::initialize() -> void {
     while (!objectsIDsToDelete.empty()) {
         objectsIDsToDelete.pop();
     }
+    while (!objectsIDsToReuse.empty()) {
+        objectsIDsToReuse.pop();
+    }
     while (!objectsIDsToCreate.empty()) {
         objectsIDsToCreate.pop();
     }
 }
 
 auto ObjectManager::update() -> void {
-    // Delete all objects from queue
+    // Delete all Objects from queue
     while (!objectsIDsToDelete.empty()) {
-        GLuint ID = objectsIDsToDelete.front();
+        ObjectID ID = objectsIDsToDelete.front();
         objectsIDsToDelete.pop();
         objects.erase(ID);
         freeIDs.insert(ID);
     }
-    // Create all objects from queue
+
+    while (!objectsIDsToReuse.empty()) {
+        ObjectID ID = objectsIDsToReuse.front();
+        objectsIDsToReuse.pop();
+        objects.erase(ID);
+    }
+
+    // Create all Objects from queue
     while (!objectsIDsToCreate.empty()) {
         GLuint ID = objectsIDsToCreate.front();
         objectsIDsToCreate.pop();
-        auto createdObject = std::make_shared<Object>(ID);
-        objects[ID] = createdObject;
+        auto insertResult = objects.insert(ID);     // Returns {iterator, bool}, where bool == success of element insertion
+        if (!insertResult.second) {
+            PRINT_ERROR("Can't create new Object.", "Given ID already exists. ID: {}", ID);
+        }
+//        auto createdObject = std::make_shared<Object>(ID);
+//        objects[ID] = createdObject;
     }
     objectsCount = objects.size();
 }
@@ -67,15 +78,17 @@ auto ObjectManager::shutdown() -> void {
     }
 }
 
-auto ObjectManager::createObject() -> GLuint {
-    GLuint ID;
+auto ObjectManager::createObject() -> ObjectID {
+    ObjectID ID;
     // If we free some IDs, we can book them for new Objects
-    if (objects.size() == maxObjects) {
+    if (objectsCount == maxObjects) {
         if (objectsIDsToDelete.empty()) {
-            std::cerr << "ERROR::OBJECT_MANAGER::CREATE_OBJECT::MAX_OBJECT_COUNT_REACHED" << std::endl;
+            PRINT_ERROR("Can't create new Object.", "Maximum number of Objects reached: {}", maxObjects);
             return 0;
         } else {
             ID = objectsIDsToDelete.front();
+            objectsIDsToDelete.pop();
+            objectsIDsToReuse.push(ID);     // Now we're sure we can't book this ID again
             objectsIDsToCreate.push(ID);
             return ID;
         }
@@ -83,7 +96,7 @@ auto ObjectManager::createObject() -> GLuint {
     // Generate new unique ID
     if (!freeIDs.empty()) {
         ID = *freeIDs.begin();
-        freeIDs.erase(ID);
+        freeIDs.erase(freeIDs.begin());
     } else {
         ID = nextFreeID++;
     }
@@ -91,9 +104,9 @@ auto ObjectManager::createObject() -> GLuint {
     return ID;
 }
 
-auto ObjectManager::deleteObject(GLuint ID) -> void {
-    if (objects.find(ID) == objects.end()) {
-        std::cerr << "ERROR::OBJECT_MANAGER::DELETE_OBJECT::INVALID_OBJECT_ID\n" << ID << std::endl;
+auto ObjectManager::deleteObject(ObjectID ID) -> void {
+    if (!objects.contains(ID)) {
+        PRINT_ERROR("Can't find Object with given ID.", "ID: {}", ID);
         return;
     }
     objectsIDsToDelete.push(ID);
@@ -105,6 +118,9 @@ auto ObjectManager::deleteAllObjects() -> void {
     freeIDs.clear();
     while (!objectsIDsToDelete.empty()) {
         objectsIDsToDelete.pop();
+    }
+    while (!objectsIDsToReuse.empty()) {
+        objectsIDsToReuse.pop();
     }
 }
 

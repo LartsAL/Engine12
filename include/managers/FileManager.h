@@ -11,9 +11,9 @@ public:
     auto shutdown() -> void;
 
     // Loads vertex & fragment shaders from file and returns ID of created shader program
-    auto loadShader(const char*&& vertexFile, const char*&& fragmentFile) -> GLuint;
+    auto loadShader(const char* vertexFile, const char* fragmentFile, const char* geometryFile = nullptr) -> GLuint;
     // Loads texture from file and returns its ID
-    auto loadTexture(const char*&& textureFile) -> GLuint;
+    auto loadTexture(const char* textureFile) -> GLuint;
 
 private:
     FileManager();

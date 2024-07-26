@@ -2,19 +2,49 @@
 #include <algorithm>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "SystemVars.h"
-#include "FileManager.h"
-#include "Shader.h"
-#include "Texture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "managers/FileManager.h"
+#include "components/Shader.h"
+#include "components/Texture.h"
+#include "managers/InputManager.h"
 
 using namespace std;
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+auto key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) -> void;
+auto mouse_callback(GLFWwindow* window, double xpos, double ypos) -> void;
+auto scroll_callback(GLFWwindow* window, double xoffset, double yoffset) -> void;
+
+auto cameraMovement() -> void;
+auto textureMixing() -> void;
+
 
 float mixKoef = 0;
 // position.x * cos(time) - position.y * sin(time), position.x * sin(time) + position.y * cos(time)
 
+const GLuint WIDTH = 800;
+const GLuint HEIGHT = 600;
+
+glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+
+bool keys[1024];
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
+
+GLfloat lastMouseX = WIDTH/2;
+GLfloat lastMouseY = HEIGHT/2;
+
+GLfloat yaw = -90.0f;
+GLfloat pitch = 0.0f;
+GLfloat fov = 45.0f;
+
 int main(int argc, char* argv[]) {
+    FileManager& fileManager = FileManager::getInstance();
+
     // Инициализация GLFW
     glfwInit();
 
@@ -22,8 +52,6 @@ int main(int argc, char* argv[]) {
     // Требуемая версия GLFW: 3.3. Формат: major.minor
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    SystemVars::openGLVersionMajor = 3;
-    SystemVars::openGLVersionMinor = 3;
 
     // Установка профайла, для которого создаётся контекст ?
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -33,7 +61,8 @@ int main(int argc, char* argv[]) {
 
 
     // Создание объекта окна
-    GLFWwindow* window = glfwCreateWindow(800, 800, "Engine12 Sandbox", nullptr, nullptr);
+    GLFWwindow* window;
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Engine12 Sandbox", nullptr, nullptr);
     if (window == nullptr) {
         cerr << "Failed to create GLFW window" << endl;
         glfwTerminate();
@@ -43,30 +72,84 @@ int main(int argc, char* argv[]) {
     // Установка контекста
     glfwMakeContextCurrent(window);
 
+    // Захват и скрытие курсора
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // Регистрация функции обратного вызова для проверки нажатия клавиш
+    // Регистрация функций обратного вызова для нажатий клавиш и движения мыши
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    glfwSetCursorPos(window, lastMouseX, lastMouseY);
 
     // Инициализация GLAD
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         cerr << "Failed to initialize GLAD" << endl;
+        glfwTerminate();
         return -1;
     }
 
-    // Установка размера отображаемого окна ?
-    int windowWidth, windowHeight;
-    glfwGetFramebufferSize(window, &windowWidth, &windowHeight);
-    glViewport(0, 0, windowWidth, windowHeight);
+    glViewport(0, 0, WIDTH, HEIGHT);
 
 
 
     // Массив вершин
     GLfloat vertices[] = {
-            // Вершины         // Цвета           // Текстура
-           -0.5, -0.5,  0.0,   1.0,  0.0,  0.0,   0.0,  0.0,   // Левый нижний
-           -0.5,  0.5,  0.0,   0.0,  1.0,  0.0,   0.0,  1.0,   // Левый верхний
-            0.5,  0.5,  0.0,   0.0,  0.0,  1.0,   1.0,  1.0,   // Правый верхний
-            0.5, -0.5,  0.0,   1.0,  1.0,  1.0,   1.0,  0.0    // Правый нижний
+             // Вершины           // Текстура
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
+
+    glm::vec3 cubePositions[] = {
+            glm::vec3( 0.0f,  0.0f,  0.0f),
+            glm::vec3( 2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3( 2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3( 1.3f, -2.0f, -2.5f),
+            glm::vec3( 1.5f,  2.0f, -2.5f),
+            glm::vec3( 1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
     GLuint indices[] = {
@@ -112,14 +195,16 @@ int main(int argc, char* argv[]) {
     #5 (3 * sizeof(GLfloat)) - шаг между наборами данных
     #6 ((GLvoid*) 0) - оффсет начала данных в буфере
     */
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) 0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (6 * sizeof(GLfloat)));
+
+    // Вершины, цвета, текстуры
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) 0);
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
 
     // Включаем атрибут с индексом N
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
+    //glEnableVertexAttribArray(2);
 
     // Отвязка буффера ?
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -142,42 +227,103 @@ int main(int argc, char* argv[]) {
     someOpenGlFunctionThatDrawsOutTriangle();
     */
 
+    // Включаем проверку глубины
+    glEnable(GL_DEPTH_TEST);
 
 
-    Shader myShader = FileManager::loadShader("resources/shaders/vertex.vert", "resources/shaders/fragment.frag");
+    Shader myShader(fileManager.loadShader("resources/shaders/vertex.vert", "resources/shaders/fragment.frag"));
 
-    Texture myTexture1("resources/textures/wooden_crate.jpg");
-    Texture myTexture2("resources/textures/emergency_exit.png");
+    Texture myTexture1(fileManager.loadTexture("resources/textures/wooden_crate.jpg"));
+    Texture myTexture2(fileManager.loadTexture("resources/textures/emergency_exit.png"));
+
+    GLint mixKoefLocation = glGetUniformLocation(myShader.shaderProgramID, "mixKoef");
+
+    GLint modelLocation = glGetUniformLocation(myShader.shaderProgramID, "model");
+    GLint viewLocation = glGetUniformLocation(myShader.shaderProgramID, "view");
+    GLint projectionLocation = glGetUniformLocation(myShader.shaderProgramID, "projection");
+
+
+//    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+//    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+//
+//    glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);  // UP in global coords
+//    glm::vec3 cameraRight = glm::normalize(glm::cross(globalUp, cameraDirection));  // Local camera RIGHT
+//    glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
+
 
     // Основной цикл
     while (!glfwWindowShouldClose(window)) {
+        GLfloat currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // Проверка событий
         glfwPollEvents();
+
+        if (keys[GLFW_KEY_ESCAPE]) {
+            glfwSetWindowShouldClose(window, GL_TRUE);
+        }
+
+        cameraMovement();
+        textureMixing();
 
         // Очистка буфера
         glClearColor(0.0, 0.5, 0.5, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
         // Рисуем
-        myShader.use();
+        glUseProgram(myShader.shaderProgramID);
 
         //float time = glfwGetTime();
         //GLint uniformTimeLocation = glGetUniformLocation(myShader.programID, "_time");
         //glUniform1f(uniformTimeLocation, -time);
-        glUniform1f(glGetUniformLocation(myShader.programID, "mixKoef"), mixKoef);
+
+        glUniform1f(mixKoefLocation, mixKoef);
+
+        //glm::mat4 model(1.0f);
+        //model = glm::rotate(model, glm::radians((GLfloat) glfwGetTime() * 50.0f), glm::vec3(0.5f, 1.0f, 1.0f));
+
+        //glm::mat4 view(1.0f);
+        //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+        // cameraPos + cameraTarget + cameraUp
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+
+
+        glm::mat4 projection(1.0f);
+
+        projection = glm::perspective(glm::radians(fov) /*glm::radians(45.0f)*/, (GLfloat) WIDTH / (GLfloat) HEIGHT, 0.1f, 100.0f);
+
+        glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, myTexture1.textureID);
-        glUniform1i(glGetUniformLocation(myShader.programID, "myTexture1"), 0);
+        glUniform1i(glGetUniformLocation(myShader.shaderProgramID, "myTexture1"), 0);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, myTexture2.textureID);
-        glUniform1i(glGetUniformLocation(myShader.programID, "myTexture2"), 1);
+        glUniform1i(glGetUniformLocation(myShader.shaderProgramID, "myTexture2"), 1);
 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        for (GLuint i = 0; i < 10; ++i) {
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            GLfloat angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians((GLfloat) glfwGetTime() * angle), glm::vec3(1.0f, 0.3f, 0.5));
+            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
         glBindVertexArray(0);
+
 
 
         // Переключение буферов
@@ -190,16 +336,65 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
+auto cameraMovement() -> void {
+    GLfloat cameraSpeed = 5.0f * deltaTime;
 
-    if (key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        mixKoef = clamp(mixKoef+0.02f, 0.0f, 1.0f);
+    if (keys[GLFW_KEY_W]) {
+        cameraPos += cameraSpeed * cameraFront;
     }
+    if (keys[GLFW_KEY_S]) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (keys[GLFW_KEY_A]) {
+        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    }
+    if (keys[GLFW_KEY_D]) {
+        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    }
+}
 
-    if (key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        mixKoef = clamp(mixKoef-0.02f, 0.0f, 1.0f);
+auto textureMixing() -> void {
+    GLfloat mixSpeed = 0.75f;
+    if (keys[GLFW_KEY_KP_ADD]) {
+        mixKoef = clamp(mixKoef + mixSpeed * deltaTime, 0.0f, 1.0f);
     }
+    if (keys[GLFW_KEY_KP_SUBTRACT]) {
+        mixKoef = clamp(mixKoef - mixSpeed * deltaTime, 0.0f, 1.0f);
+    }
+}
+
+auto key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) -> void {
+    if (action == GLFW_PRESS) {
+        keys[key] = true;
+    }
+    if (action == GLFW_RELEASE) {
+        keys[key] = false;
+    }
+}
+
+auto mouse_callback(GLFWwindow* window, double xpos, double ypos) -> void {
+    GLfloat sensitivity = 0.05f;
+
+    GLfloat xoffset = xpos - lastMouseX;
+    GLfloat yoffset = lastMouseY - ypos;
+    lastMouseX = xpos;
+    lastMouseY = ypos;
+
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    pitch = clamp(pitch, -89.0f, 89.0f);
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    front.y = sin(glm::radians(pitch));
+    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cameraFront = glm::normalize(front);
+}
+
+auto scroll_callback(GLFWwindow* window, double xoffset, double yoffset) -> void {
+    fov = clamp(fov - (GLfloat) yoffset, 1.0f, 45.0f);
 }
