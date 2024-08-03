@@ -15,7 +15,7 @@ using WindowInfo = std::tuple<GLint, GLint, const char*, GLFWmonitor*>;
 
 class WindowManager {
 public:
-    static auto getInstance() -> WindowManager&;
+    static auto getInstance() noexcept -> WindowManager&;
 
     auto initialize() noexcept -> void;
     auto update() -> void;
@@ -32,8 +32,8 @@ public:
     auto resetWindowHints() const noexcept -> void;
 
 private:
-    WindowManager();
-    ~WindowManager();
+    WindowManager() noexcept;
+    ~WindowManager() noexcept;
 
     auto initializeGLAD(WindowID ID) const -> void;
 

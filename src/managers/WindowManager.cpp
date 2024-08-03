@@ -8,16 +8,16 @@
 
 SceneManager& sceneManager = SceneManager::getInstance();
 
-WindowManager::WindowManager():
+WindowManager::WindowManager() noexcept:
     maxWindows(),
     windowsCount(),
     nextFreeID() {}
 
-WindowManager::~WindowManager() {
+WindowManager::~WindowManager() noexcept {
     shutdown();
 }
 
-auto WindowManager::getInstance() -> WindowManager& {
+auto WindowManager::getInstance() noexcept -> WindowManager& {
     static WindowManager instance;
     return instance;
 }
