@@ -2,13 +2,14 @@
 
 #include <iostream>
 
-auto PrintError(const char* file, unsigned int line, const char* function, const char* what, const char* extra_print) -> void {
+auto printError(const char* file, unsigned int line, const char* function,
+                const char* what, const char* details) noexcept -> void {
 	std::cerr << "ERROR: \'" << what << "\'\n";
 	std::cerr << "\tIn " << function << '\n';
 	std::cerr << '\t' << file << ", line " << line << '\n';
 
-	if (extra_print != nullptr) {
-		std::cerr << extra_print << '\n';
+	if (details != nullptr) {
+		std::cerr << details << '\n';
 	}
 }
 
