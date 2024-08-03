@@ -20,3 +20,15 @@ auto Scene::update() -> void {
         }
     }
 }
+
+auto Scene::isActive() -> bool {
+    return active;
+}
+
+auto Scene::getID() -> SceneID {
+    return ID;
+}
+
+auto Scene::getLinkedWindow() -> WindowID {
+    return linkedWindow;
+}

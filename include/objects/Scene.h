@@ -13,6 +13,10 @@ public:
 
     auto update() -> void;
 
+    auto isActive() -> bool;
+    auto getID() -> SceneID;
+    auto getLinkedWindow() -> WindowID;
+
 private:
     bool                    active;
     SceneID                 ID;
