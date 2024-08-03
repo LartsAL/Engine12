@@ -1,5 +1,6 @@
 #pragma once
 
+#include "managers/SceneManager.h"
 #include "managers/WindowManager.h"
 #include "managers/FileManager.h"
 #include "managers/ObjectManager.h"
@@ -20,6 +21,7 @@ private:
     ~Core();
 
     // Managers
+    SceneManager& sceneManager;
     WindowManager& windowManager;
     FileManager& fileManager;
     ObjectManager& objectManager;

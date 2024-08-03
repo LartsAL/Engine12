@@ -1,6 +1,10 @@
 #include "Core.h"
 
+#include "EngineExceptions.h"
+#include "Error.h"
+
 Core::Core():
+    sceneManager(SceneManager::getInstance()),
     windowManager(WindowManager::getInstance()),
     fileManager(FileManager::getInstance()),
     objectManager(ObjectManager::getInstance()),
@@ -16,6 +20,7 @@ auto Core::getInstance() -> Core& {
 }
 
 auto Core::initialize() -> void {
+    sceneManager.initialize();
     windowManager.initialize();
     fileManager.initialize();
     objectManager.initialize();
@@ -25,10 +30,26 @@ auto Core::initialize() -> void {
 }
 
 auto Core::update() -> void {
-
+    try {
+        sceneManager.update();
+        windowManager.update();
+        //fileManager.update();
+        objectManager.update();
+        componentManager.update();
+        // otherManagers.update()
+        // ...
+    } catch (EngineException& exception) {
+        PRINT_ERROR("Core::update() failed due to Engine exception. Shutting down.",
+                    "Code: {}\nWhat: {}\n", exception.code(), exception.what());
+        shutdown();
+    } catch (std::exception& exception) {
+        PRINT_ERROR("Core::update() failed due to std::exception.",
+                    "What: {}", exception.what());
+    }
 }
 
 auto Core::shutdown() -> void {
+    sceneManager.shutdown();
     windowManager.shutdown();
     fileManager.shutdown();
     objectManager.shutdown();
