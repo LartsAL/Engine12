@@ -51,9 +51,9 @@ auto SceneManager::update() -> void {
     while (!scenesIDsToCreate.empty()) {
         SceneID ID = scenesIDsToCreate.front();
         scenesIDsToCreate.pop();
-        auto createdObject = std::make_shared<Scene>(ID);
-        auto insertResult = scenes.insert(std::make_pair(ID, createdObject));
-        if (!insertResult.second) {
+        const auto scene = std::make_shared<Scene>(ID);
+        const auto [it, success] = scenes.insert(std::make_pair(ID, scene));
+        if (!success) {
             PRINT_ERROR("Can't create new Scene.", "Given ID already exists. ID: {}", ID);
         }
     }
@@ -116,5 +116,14 @@ auto SceneManager::deleteAllScenes() -> void {
     }
     while (!scenesIDsToReuse.empty()) {
         scenesIDsToReuse.pop();
+    }
+}
+
+auto SceneManager::getScene(SceneID ID) -> std::shared_ptr<Scene> {
+    if (scenes.contains(ID)) {
+        return scenes.at(ID);
+    } else {
+        PRINT_ERROR("Can't find Scene with given ID.", "ID: {}", ID);
+        return nullptr;
     }
 }

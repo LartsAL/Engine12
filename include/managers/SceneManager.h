@@ -20,6 +20,7 @@ public:
     auto createScene() -> SceneID;
     auto deleteScene(SceneID ID) -> void;
     auto deleteAllScenes() -> void;
+    auto getScene(SceneID ID) -> std::shared_ptr<Scene>;
 
 private:
     SceneManager();
