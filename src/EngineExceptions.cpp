@@ -2,8 +2,14 @@
 
 #include <stdexcept>
 
-EngineException::EngineException(const char *msg): message(msg) {}
+EngineException::EngineException(const char* msg, unsigned char code):
+    message(msg),
+    errnum(code) {}
 
-const char *EngineException::what() const noexcept {
+auto EngineException::what() const noexcept -> const char * {
     return message;
+}
+
+auto EngineException::code() const noexcept -> unsigned char {
+    return errnum;
 }
