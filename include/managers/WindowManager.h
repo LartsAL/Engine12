@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+#include <tuple>
 #include <queue>
 #include <memory>
 #include <vector>
@@ -7,29 +9,42 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+using SceneID    = GLuint;
+using WindowID   = GLuint;
+using WindowInfo = std::tuple<GLint, GLint, const char*, GLFWmonitor*>;
+
 class WindowManager {
 public:
     static auto getInstance() -> WindowManager&;
 
-    auto initialize() -> void;
-    // auto update() -> void;
-    auto shutdown() -> void;
+    auto initialize() noexcept -> void;
+    auto update() -> void;
+    auto shutdown() noexcept -> void;
 
-    auto createWindow(int width, int height, const char* title = "") -> std::shared_ptr<GLFWwindow>;
-    auto destroyWindow(const std::shared_ptr<GLFWwindow>& window) -> void;
-    auto setActiveWindow(const std::shared_ptr<GLFWwindow>& window) -> void;
+    // # WARNING: createWindow doesn't support glfwCreateWindow [share] parameter. It always set to NULL.
+    auto createWindow(SceneID linkedSceneID, GLint width, GLint height, const char* title = "",
+                      GLFWmonitor* monitor = nullptr) -> WindowID;
+    auto deleteWindow(WindowID ID) noexcept -> void;
+    auto deleteAllWindows() noexcept -> void;
+    auto setActiveWindow(WindowID ID) const noexcept -> void;
+    auto enableVSync(bool state) const noexcept -> void;
+    auto setWindowHint(GLint hint, GLint value) const noexcept -> void;
+    auto resetWindowHints() const noexcept -> void;
 
 private:
     WindowManager();
     ~WindowManager();
 
-    auto initializeGLAD() -> int;
+    auto initializeGLAD(WindowID ID) const -> void;
 
     GLuint maxWindows;
     GLuint windowsCount;
     GLuint nextFreeID;
+    std::set<WindowID> freeIDs;
     std::unordered_map<GLuint, std::shared_ptr<GLFWwindow>> windows;
-    
-    // Deprecated?
-    std::vector<std::shared_ptr<GLFWwindow>> existingWindows;
+    std::queue<WindowID> windowsIDsToDelete;
+    std::queue<WindowID> windowsIDsToReuse;
+    std::queue<WindowID> windowsIDsToCreate;
+    std::queue<WindowInfo> windowsCreationInfo;
+    std::unordered_map<GLint, GLint> hintsDefaults;
 };
