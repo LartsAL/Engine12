@@ -28,12 +28,12 @@ auto ComponentManager::initialize() -> void {
 auto ComponentManager::update() -> void {
     while (!componentsToAdd.empty()) {
         auto pair = componentsToAdd.front();
-        bitmasks[pair.first] |= pair.second;
+        bitmasks.at(pair.first) |= pair.second;
         componentsToAdd.pop();
     }
     while (!componentsToRemove.empty()) {
         auto pairInfo = componentsToRemove.front();
-        bitmasks[pairInfo.first] &= ~pairInfo.second;
+        bitmasks.at(pairInfo.first) &= ~pairInfo.second;
         componentsToRemove.pop();
     }
 }
@@ -54,12 +54,12 @@ auto ComponentManager::shutdown() -> void {
 
 // TODO: Achtung! Test section
 auto ComponentManager::addComponent(GLuint ID, std::string&& componentName) -> void {
-    std::shared_ptr<Component> component = allComponentsMap[componentName]();
-    components[ID].emplace(component->ID, component);
+    std::shared_ptr<Component> component = allComponentsMap.at(componentName)();
+    components.at(ID).emplace(component->ID, component);
     componentsToAdd.emplace(ID, component->bitmask);
 }
 // TODO: Achtung! Test section
 
 auto ComponentManager::clearComponents(GLuint ID) -> void {
-    components[ID].clear();
+    components.at(ID).clear();
 }
