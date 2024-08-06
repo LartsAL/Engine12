@@ -1,7 +1,7 @@
 #include "managers/SceneManager.h"
 
 #include <limits>
-#include "Error.h"
+#include "systemutils/Error.h"
 
 SceneManager::SceneManager():
     maxScenes(),

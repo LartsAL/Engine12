@@ -2,7 +2,7 @@
 
 #include <limits>
 #include "objects/Object.h"
-#include "Error.h"
+#include "systemutils/Error.h"
 
 ObjectManager::ObjectManager():
     maxObjects(),

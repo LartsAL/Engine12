@@ -1,7 +1,7 @@
 #include "Core.h"
 
-#include "EngineExceptions.h"
-#include "Error.h"
+#include "systemutils/EngineExceptions.h"
+#include "systemutils/Error.h"
 
 Core::Core():
     sceneManager(SceneManager::getInstance()),
