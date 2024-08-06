@@ -1,6 +1,6 @@
 #include "managers/InputManager.h"
 
-#include "GlobalVars.h"
+#include "systemutils/GlobalVars.h"
 
 InputManager::InputManager():
     pressedKeys(0) {}

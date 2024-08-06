@@ -1,10 +1,9 @@
 #include "managers/WindowManager.h"
 
-#include <iostream>
 #include "managers/SceneManager.h"
-#include "EngineExceptions.h"
-#include "Error.h"
-#include "GlobalVars.h"
+#include "systemutils/EngineExceptions.h"
+#include "systemutils/Error.h"
+#include "systemutils/GlobalVars.h"
 
 SceneManager& sceneManager = SceneManager::getInstance();
 
@@ -88,7 +87,7 @@ auto WindowManager::update() -> void {
         );
 
         if (!window) {
-            throw EngineException("Window creation failed.", 1);
+            throw EngineException("Window creation failed.", 2);
         }
 
         const auto [it, success] = windows.insert(std::make_pair(ID, window));

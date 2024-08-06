@@ -1,4 +1,4 @@
-#include "GlobalVars.h"
+#include "systemutils/GlobalVars.h"
 
 GLuint g_screenWidth  = 0;
 GLuint g_screenHeight = 0;

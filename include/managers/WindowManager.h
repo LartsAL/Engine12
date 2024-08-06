@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "systemutils/IDSystem.h"
 
 using SceneID    = GLuint;
 using WindowID   = GLuint;
@@ -21,7 +22,7 @@ public:
     auto update() -> void;
     auto shutdown() noexcept -> void;
 
-    // # WARNING: createWindow doesn't support glfwCreateWindow [share] parameter. It always set to NULL.
+    // # WARNING: createWindow doesn't support glfwCreateWindow [share] parameter. It's always set to NULL.
     auto createWindow(SceneID linkedSceneID, GLint width, GLint height, const char* title = "",
                       GLFWmonitor* monitor = nullptr) -> WindowID;
     auto deleteWindow(WindowID ID) noexcept -> void;
