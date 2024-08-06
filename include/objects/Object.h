@@ -2,10 +2,8 @@
 
 #include "glad/glad.h"
 #include <unordered_set>
-
 #include "managers/ComponentManager.h"
-
-using ObjectID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class Object {
 public:

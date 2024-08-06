@@ -7,8 +7,7 @@
 #include <unordered_set>
 #include <glad/glad.h>
 #include "objects/Object.h"
-
-using ObjectID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class ObjectManager {
 public:

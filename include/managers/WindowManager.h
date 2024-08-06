@@ -8,10 +8,9 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "systemutils/GlobalVars.h"
 #include "systemutils/IDSystem.h"
 
-using SceneID    = GLuint;
-using WindowID   = GLuint;
 using WindowInfo = std::tuple<GLint, GLint, const char*, GLFWmonitor*>;
 
 class WindowManager {

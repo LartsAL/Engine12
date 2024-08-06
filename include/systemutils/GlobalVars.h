@@ -5,6 +5,9 @@
 #include <GLFW/glfw3.h>
 
 using WindowID = GLuint;
+using ObjectID = GLuint;
+using SceneID = GLuint;
+using ComponentID = GLuint;
 
 extern GLuint g_screenWidth;
 extern GLuint g_screenHeight;

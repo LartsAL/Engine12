@@ -6,8 +6,7 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include "objects/Scene.h"
-
-using SceneID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class SceneManager {
 public:

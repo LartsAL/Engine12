@@ -8,9 +8,7 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include "components/Component.h"
-
-using ObjectID    = GLuint;    // TODO: Сделать везде
-using ComponentID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class ComponentManager {
 public:
