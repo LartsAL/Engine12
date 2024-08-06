@@ -2,6 +2,10 @@
 
 #include <stdexcept>
 
+#define ENGINE_EXCEPT_UNKNOWN 1
+#define ENGINE_EXCEPT_WINDOW_CREATION_FAIL 2
+#define ENGINE_EXCEPT_GLAD_INIT_FAIL 3
+
 class EngineException : public std::exception {
 public:
     explicit EngineException(const char* msg, unsigned char code = 1);

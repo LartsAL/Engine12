@@ -2,9 +2,7 @@
 
 #include "glad/glad.h"
 
-Object::Object(ObjectID ID){
-    ID(ID);
-}
+Object::Object(ObjectID id): ID(id) {}
 
 auto Object::getID() const -> ObjectID {
     return ID;

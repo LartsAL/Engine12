@@ -24,8 +24,6 @@ public:
     auto getMaxObjects() const -> GLuint;
     auto getObjectsCount() const -> GLuint;
 
-    std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;
-
 private:
     ObjectManager();
     ~ObjectManager();
@@ -34,6 +32,7 @@ private:
     GLuint objectsCount;                        // Number of existing objects
     ObjectID nextFreeID;                        // Next available ID for new Object
     std::set<ObjectID> freeIDs;                 // Pool of reusable IDs freed from deleted Objects
+    std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;
     std::queue<ObjectID> objectsIDsToDelete;    // Objects which will be deleted during update
     std::queue<ObjectID> objectsIDsToReuse;     // If we book some IDs from objectsIDsToDelete, they'll go here to prevent double book of the same ID
     std::queue<ObjectID> objectsIDsToCreate;    // Objects which will be created during update

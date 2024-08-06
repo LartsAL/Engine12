@@ -2,7 +2,6 @@
 
 #include <limits>
 
-#include "EngineExceptions.h"
 #include "objects/Object.h"
 #include "systemutils/Error.h"
 
@@ -67,7 +66,7 @@ auto ObjectManager::update() -> void {
         const auto object = std::make_shared<Object>(ID);
 
         if (!object) {
-            throw EngineException("Object creation failed.", 1);
+            PRINT_ERROR("Failed to create an Object with given ID", "ID: {}", ID);
         }
 
         const auto [it, success] = objects.insert(std::make_pair(ID, object));

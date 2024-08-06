@@ -87,7 +87,7 @@ auto WindowManager::update() -> void {
         );
 
         if (!window) {
-            throw EngineException("Window creation failed.", 2);
+            throw EngineException("Window creation failed.", ENGINE_EXCEPT_WINDOW_CREATION_FAIL);
         }
 
         const auto [it, success] = windows.insert(std::make_pair(ID, window));
