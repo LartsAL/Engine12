@@ -67,6 +67,7 @@ auto ObjectManager::update() -> void {
 
         if (!object) {
             PRINT_ERROR("Failed to create an Object with given ID", "ID: {}", ID);
+            continue;
         }
 
         const auto [it, success] = objects.insert(std::make_pair(ID, object));
