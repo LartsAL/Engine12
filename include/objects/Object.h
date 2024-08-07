@@ -2,7 +2,6 @@
 
 #include "glad/glad.h"
 #include <unordered_set>
-#include "managers/ComponentManager.h"
 #include "systemutils/GlobalVars.h"
 
 class Object {
@@ -13,6 +12,6 @@ public:
     std::unordered_set<ComponentID> components; // TODO: a map in ComponentManager has the same name, rename everything
     //also unordered_set might not be memory-efficient here
 private:
-    ObjectID ID{};
-    SceneID sceneID{};
+    ObjectID ID;
+    SceneID sceneID;
 };
