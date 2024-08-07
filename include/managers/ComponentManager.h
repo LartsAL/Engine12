@@ -8,9 +8,7 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include "components/Component.h"
-
-using ObjectID    = GLuint;    // TODO: Сделать везде
-using ComponentID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class ComponentManager {
 public:
@@ -55,7 +53,7 @@ private:
 
     // ! Deprecated, candidate for deletion:
     std::unordered_map<ObjectID, std::bitset<std::numeric_limits<GLuint>::max()>> bitmasks;                // Bitmasks to see which components Object have
-
+    // TODO: a set in the Object class has the same name, rename everything(and also fully rewrite this manager)
     std::unordered_map<ObjectID, std::unordered_map<ComponentID, std::shared_ptr<Component>>> components;       // Mapping: Component ID -> pointer to Component
 
     std::queue<std::pair<ObjectID, std::bitset<std::numeric_limits<GLuint>::max()>>> componentsToAdd;      // Components which will be added during update

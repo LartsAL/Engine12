@@ -87,7 +87,7 @@ auto WindowManager::update() -> void {
         );
 
         if (!window) {
-            throw EngineException("Window creation failed.", 2);
+            throw EngineException("Window creation failed.", ENGINE_EXCEPT_WINDOW_CREATION_FAILED);
         }
 
         const auto [it, success] = windows.insert(std::make_pair(ID, window));
@@ -190,7 +190,7 @@ auto WindowManager::setActiveWindow(WindowID ID) const noexcept -> void {
 auto WindowManager::initializeGLAD(WindowID ID) const -> void {
     setActiveWindow(ID);
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        throw EngineException("GLAD load failed.", 3);
+        throw EngineException("GLAD load failed.", ENGINE_EXCEPT_GLAD_INIT_FAILED);
     }
 }
 

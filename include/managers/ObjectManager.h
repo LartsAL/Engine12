@@ -6,11 +6,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <glad/glad.h>
-
-// ! Deprecated, candidate for deletion:
-// #include "Object.h"
-
-using ObjectID = GLuint;
+#include "objects/Object.h"
+#include "systemutils/GlobalVars.h"
 
 class ObjectManager {
 public:
@@ -34,11 +31,8 @@ private:
     GLuint objectsCount;                        // Number of existing objects
     ObjectID nextFreeID;                        // Next available ID for new Object
     std::set<ObjectID> freeIDs;                 // Pool of reusable IDs freed from deleted Objects
-    std::unordered_set<ObjectID> objects;       // Set of existing Objects
+    std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;
     std::queue<ObjectID> objectsIDsToDelete;    // Objects which will be deleted during update
     std::queue<ObjectID> objectsIDsToReuse;     // If we book some IDs from objectsIDsToDelete, they'll go here to prevent double book of the same ID
     std::queue<ObjectID> objectsIDsToCreate;    // Objects which will be created during update
-
-    // ! Deprecated, candidate for deletion:
-    // std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;    // ID -> Object, map of all existing Objects
 };

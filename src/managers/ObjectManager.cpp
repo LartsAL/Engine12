@@ -1,6 +1,7 @@
 #include "managers/ObjectManager.h"
 
 #include <limits>
+
 #include "objects/Object.h"
 #include "systemutils/Error.h"
 
@@ -61,12 +62,18 @@ auto ObjectManager::update() -> void {
     while (!objectsIDsToCreate.empty()) {
         GLuint ID = objectsIDsToCreate.front();
         objectsIDsToCreate.pop();
-        auto insertResult = objects.insert(ID);     // Returns {iterator, bool}, where bool == success of element insertion
-        if (!insertResult.second) {
+
+        const auto object = std::make_shared<Object>(ID);
+
+        if (!object) {
+            PRINT_ERROR("Failed to create an Object with given ID", "ID: {}", ID);
+            continue;
+        }
+
+        const auto [it, success] = objects.insert(std::make_pair(ID, object));
+        if (!success) {
             PRINT_ERROR("Can't create new Object.", "Given ID already exists. ID: {}", ID);
         }
-//        auto createdObject = std::make_shared<Object>(ID);
-//        objects[ID] = createdObject;
     }
     objectsCount = objects.size();
 }

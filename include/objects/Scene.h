@@ -2,10 +2,7 @@
 
 #include <vector>
 #include <glad/glad.h>
-
-using SceneID  = GLuint;
-using WindowID = GLuint;
-using ObjectID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class Scene {
 public:

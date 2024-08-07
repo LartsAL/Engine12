@@ -3,9 +3,7 @@
 #include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-using SceneID  = GLuint;
-using WindowID = GLuint;
+#include "systemutils/GlobalVars.h"
 
 class Window {
 public:
