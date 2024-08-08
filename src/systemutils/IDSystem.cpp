@@ -50,6 +50,7 @@ auto IDSystem::createID() noexcept -> GLuint {
 
 auto IDSystem::deleteID(GLuint ID) noexcept -> void {
     toDelete.push(ID);
+    count--;
 }
 
 auto IDSystem::setClassName(const char* name) noexcept -> void {
