@@ -4,9 +4,8 @@
 #include "systemutils/Error.h"
 
 SceneManager::SceneManager():
-    maxScenes(),
-    scenesCount(),
-    nextFreeID() {}
+    idSystem("Scene"),
+    scenesCount() {}
 
 SceneManager::~SceneManager() {
     shutdown();
@@ -18,39 +17,28 @@ auto SceneManager::getInstance() -> SceneManager& {
 }
 
 auto SceneManager::initialize() -> void {
-    maxScenes = std::numeric_limits<GLuint>::max();
     scenesCount = 0;
-    nextFreeID = 1;
-    freeIDs.clear();
     scenes.clear();
-    while (!scenesIDsToDelete.empty()) {
-        scenesIDsToDelete.pop();
-    }
-    while (!scenesIDsToReuse.empty()) {
-        scenesIDsToReuse.pop();
-    }
-    while (!scenesIDsToCreate.empty()) {
-        scenesIDsToCreate.pop();
-    }
+    idSystem.reset();
 }
 
 auto SceneManager::update() -> void {
-    while (!scenesIDsToDelete.empty()) {
-        SceneID ID = scenesIDsToDelete.front();
-        scenesIDsToDelete.pop();
+    while (!idSystem.toDelete.empty()) {
+        SceneID ID = idSystem.toDelete.front();
+        idSystem.toDelete.pop();
         scenes.erase(ID);
-        freeIDs.insert(ID);
+        idSystem.freeIDs.insert(ID);
     }
 
-    while (!scenesIDsToReuse.empty()) {
-        SceneID ID = scenesIDsToReuse.front();
-        scenesIDsToReuse.pop();
+    while (!idSystem.toReuse.empty()) {
+        SceneID ID = idSystem.toReuse.front();
+        idSystem.toReuse.pop();
         scenes.erase(ID);
     }
 
-    while (!scenesIDsToCreate.empty()) {
-        SceneID ID = scenesIDsToCreate.front();
-        scenesIDsToCreate.pop();
+    while (!idSystem.toCreate.empty()) {
+        SceneID ID = idSystem.toCreate.front();
+        idSystem.toCreate.pop();
         const auto scene = std::make_shared<Scene>(ID);
         const auto [it, success] = scenes.insert(std::make_pair(ID, scene));
         if (!success) {
@@ -66,9 +54,7 @@ auto SceneManager::update() -> void {
 
 auto SceneManager::shutdown() -> void {
     deleteAllScenes();
-    while (!scenesIDsToCreate.empty()) {
-        scenesIDsToCreate.pop();
-    }
+    idSystem.reset();
 }
 
 // TODO: Make comments for autodoc?
@@ -76,27 +62,7 @@ auto SceneManager::shutdown() -> void {
  * @return ID of the newly created Scene. If Scene was not created, returns 0.
  */
 auto SceneManager::createScene() -> SceneID {
-    SceneID ID;
-    if (scenesCount == maxScenes) {
-        if (scenesIDsToDelete.empty()) {
-            PRINT_ERROR("Can't create new Scene.", "Maximum number of Scenes reached: {}", maxScenes);
-            return 0;
-        } else {
-            ID = scenesIDsToDelete.front();
-            scenesIDsToDelete.pop();
-            scenesIDsToReuse.push(ID);
-            scenesIDsToCreate.push(ID);
-            return ID;
-        }
-    }
-    if (!freeIDs.empty()) {
-        ID = *freeIDs.begin();
-        freeIDs.erase(freeIDs.begin());
-    } else {
-        ID = nextFreeID++;
-    }
-    scenesIDsToCreate.push(ID);
-    return ID;
+    return idSystem.createID();
 }
 
 auto SceneManager::deleteScene(SceneID ID) -> void {
@@ -104,19 +70,12 @@ auto SceneManager::deleteScene(SceneID ID) -> void {
         PRINT_ERROR("Can't find Scene with given ID.", "ID: {}", ID);
         return;
     }
-    scenesIDsToDelete.push(ID);
+    idSystem.deleteID(ID);
 }
 
 auto SceneManager::deleteAllScenes() -> void {
     scenes.clear();
-    nextFreeID = 0;
-    freeIDs.clear();
-    while (!scenesIDsToDelete.empty()) {
-        scenesIDsToDelete.pop();
-    }
-    while (!scenesIDsToReuse.empty()) {
-        scenesIDsToReuse.pop();
-    }
+    idSystem.reset();
 }
 
 auto SceneManager::getScene(SceneID ID) -> std::shared_ptr<Scene> {
