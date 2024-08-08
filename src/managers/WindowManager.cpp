@@ -8,6 +8,7 @@
 SceneManager& sceneManager = SceneManager::getInstance();
 
 WindowManager::WindowManager() noexcept:
+    idSystem("Window"),
     windowsCount() {}
 
 WindowManager::~WindowManager() noexcept {

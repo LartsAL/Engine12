@@ -8,6 +8,12 @@ IDSystem::IDSystem() noexcept:
     nextFreeID(1),
     className(nullptr) {}
 
+IDSystem::IDSystem(const char* classname) noexcept:
+    count(0),
+    max(std::numeric_limits<GLuint>::max()),
+    nextFreeID(1),
+    className(classname) {}
+
 IDSystem::~IDSystem() noexcept {
     reset();
 }

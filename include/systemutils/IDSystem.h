@@ -7,6 +7,7 @@
 class IDSystem {
 public:
     IDSystem() noexcept;
+    IDSystem(const char* classname) noexcept;
     ~IDSystem() noexcept;
 
     auto createID() noexcept -> GLuint;

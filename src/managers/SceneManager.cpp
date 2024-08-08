@@ -4,6 +4,7 @@
 #include "systemutils/Error.h"
 
 SceneManager::SceneManager():
+    idSystem("Scene"),
     scenesCount() {}
 
 SceneManager::~SceneManager() {

@@ -6,6 +6,7 @@
 #include "systemutils/Error.h"
 
 ObjectManager::ObjectManager():
+    idSystem("Object"),
     objectsCount() {}
 
 ObjectManager::~ObjectManager() {
