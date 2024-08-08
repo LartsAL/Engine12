@@ -13,7 +13,7 @@ public:
     auto deleteID(GLuint ID) noexcept -> void;
     auto setClassName(const char* name) noexcept -> void;
 
-    auto reset() -> void; // returns IDSystem state back to when it's conctructor have been just called
+    auto reset() -> void; // reverts IDSystem state back to when it's conctructor have been just called
 
     GLuint max;
 

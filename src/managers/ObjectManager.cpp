@@ -9,7 +9,7 @@ ObjectManager::ObjectManager():
     objectsCount() {}
 
 ObjectManager::~ObjectManager() {
-    idSystem.~IDSystem();
+    idSystem.reset();
 }
 
 auto ObjectManager::getInstance() -> ObjectManager& {
