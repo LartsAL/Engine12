@@ -5,7 +5,7 @@
 #include "systemutils/Error.h"
 #include "systemutils/GlobalVars.h"
 
-SceneManager& sceneManager = SceneManager::getInstance();
+SceneManager& w_sceneManager = SceneManager::getInstance();
 
 WindowManager::WindowManager() noexcept:
     idSystem("Window"),
@@ -52,9 +52,19 @@ auto WindowManager::update() -> void {
         WindowID ID = idSystem.toCreate.front();
         idSystem.toCreate.pop();
 
-        auto [width, height, title,
-                monitor] = windowsCreationInfo.front();
+        const auto [linkedSceneID, width, height,
+              title, monitor] = windowsCreationInfo.front();
         windowsCreationInfo.pop();
+
+        const auto scenePtr = w_sceneManager.getScene(linkedSceneID);
+        if (!scenePtr) {
+            throw EngineException("Function returned nullptr.", ENGINE_EXCEPT_NULLPTR_RECEIVED);
+        }
+
+        WindowID sceneLinkedWindow = scenePtr->getLinkedWindow();
+        if (sceneLinkedWindow) {
+            throw EngineException("Given Scene already linked with one Window.", ENGINE_EXCEPT_SCENE_ALREADY_LINKED);
+        }
 
         const auto window = std::shared_ptr<GLFWwindow>(
                 glfwCreateWindow(width, height, title, monitor, nullptr),
@@ -98,21 +108,9 @@ auto WindowManager::shutdown() noexcept -> void {
 
 auto WindowManager::createWindow(SceneID linkedSceneID, GLint width, GLint height, const char* title,
                                  GLFWmonitor* monitor) -> WindowID {
-    const auto scenePtr = sceneManager.getScene(linkedSceneID);
-    if (!scenePtr) {
-        PRINT_ERROR("Given Scene ID is invalid.", "ID: {}", linkedSceneID);
-        return 0;
-    }
-
-    WindowID sceneLinkedWindow = scenePtr->getLinkedWindow();
-    if (sceneLinkedWindow) {
-        PRINT_ERROR("Given Scene already linked with one Window.", "Window ID: {}", sceneLinkedWindow);
-        return 0;
-    }
-
     WindowID ID = idSystem.createID();
-    if(ID) {
-        windowsCreationInfo.emplace(width, height, title, monitor);
+    if (ID) {
+        windowsCreationInfo.emplace(linkedSceneID, width, height, title, monitor);
     }
     return ID;
 }

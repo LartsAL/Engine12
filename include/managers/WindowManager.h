@@ -11,7 +11,7 @@
 #include "systemutils/GlobalVars.h"
 #include "systemutils/IDSystem.h"
 
-using WindowInfo = std::tuple<GLint, GLint, const char*, GLFWmonitor*>;
+using WindowInfo = std::tuple<GLuint, GLint, GLint, const char*, GLFWmonitor*>;
 
 class WindowManager {
 public:
