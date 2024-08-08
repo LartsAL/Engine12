@@ -25,27 +25,12 @@ auto ObjectManager::initialize() -> void {
 }
 
 auto ObjectManager::update() -> void {
-    // Delete all Objects from queue
-    while (!idSystem.toDelete.empty()) {
-        ObjectID ID = idSystem.toDelete.front();
-        idSystem.toDelete.pop();
-        objects.erase(ID);
-        idSystem.freeIDs.insert(ID);
-    }
-
-    while (!idSystem.toReuse.empty()) {
-        ObjectID ID = idSystem.toReuse.front();
-        idSystem.toReuse.pop();
-        objects.erase(ID);
-    }
-
     // Create all Objects from queue
     while (!idSystem.toCreate.empty()) {
         GLuint ID = idSystem.toCreate.front();
         idSystem.toCreate.pop();
 
         const auto object = std::make_shared<Object>(ID);
-
         if (!object) {
             PRINT_ERROR("Failed to create an Object with given ID", "ID: {}", ID);
             continue;
@@ -56,6 +41,15 @@ auto ObjectManager::update() -> void {
             PRINT_ERROR("Can't create new Object.", "Given ID already exists. ID: {}", ID);
         }
     }
+
+    // Delete all Objects from queue
+    while (!idSystem.toDelete.empty()) {
+        ObjectID ID = idSystem.toDelete.front();
+        idSystem.toDelete.pop();
+        objects.erase(ID);
+        idSystem.freeIDs.insert(ID);
+    }
+
     objectsCount = objects.size();
 }
 

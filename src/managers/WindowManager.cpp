@@ -48,25 +48,12 @@ auto WindowManager::initialize() noexcept -> void {
 }
 
 auto WindowManager::update() -> void {
-    while (!idSystem.toDelete.empty()) {
-        WindowID ID = idSystem.toDelete.front();
-        idSystem.toDelete.pop();
-        windows.erase(ID);
-        idSystem.freeIDs.insert(ID);
-    }
-
-    while (!idSystem.toReuse.empty()) {
-        WindowID ID = idSystem.toReuse.front();
-        idSystem.toReuse.pop();
-        windows.erase(ID);
-    }
-
     while (!idSystem.toCreate.empty()) {
         WindowID ID = idSystem.toCreate.front();
         idSystem.toCreate.pop();
 
         auto [width, height, title,
-              monitor] = windowsCreationInfo.front();
+                monitor] = windowsCreationInfo.front();
         windowsCreationInfo.pop();
 
         const auto window = std::shared_ptr<GLFWwindow>(
@@ -94,6 +81,14 @@ auto WindowManager::update() -> void {
             g_currentWindow = ID;
         }
     }
+
+    while (!idSystem.toDelete.empty()) {
+        WindowID ID = idSystem.toDelete.front();
+        idSystem.toDelete.pop();
+        windows.erase(ID);
+        idSystem.freeIDs.insert(ID);
+    }
+
     windowsCount = windows.size();
 }
 

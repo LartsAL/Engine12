@@ -23,6 +23,22 @@ auto SceneManager::initialize() -> void {
 }
 
 auto SceneManager::update() -> void {
+    while (!idSystem.toCreate.empty()) {
+        SceneID ID = idSystem.toCreate.front();
+        idSystem.toCreate.pop();
+
+        const auto scene = std::make_shared<Scene>(ID);
+        if (!scene) {
+            PRINT_ERROR("Failed to create a Scene with given ID", "ID: {}", ID);
+            continue;
+        }
+
+        const auto [it, success] = scenes.insert(std::make_pair(ID, scene));
+        if (!success) {
+            PRINT_ERROR("Can't create new Scene.", "Given ID already exists. ID: {}", ID);
+        }
+    }
+
     while (!idSystem.toDelete.empty()) {
         SceneID ID = idSystem.toDelete.front();
         idSystem.toDelete.pop();
@@ -30,21 +46,6 @@ auto SceneManager::update() -> void {
         idSystem.freeIDs.insert(ID);
     }
 
-    while (!idSystem.toReuse.empty()) {
-        SceneID ID = idSystem.toReuse.front();
-        idSystem.toReuse.pop();
-        scenes.erase(ID);
-    }
-
-    while (!idSystem.toCreate.empty()) {
-        SceneID ID = idSystem.toCreate.front();
-        idSystem.toCreate.pop();
-        const auto scene = std::make_shared<Scene>(ID);
-        const auto [it, success] = scenes.insert(std::make_pair(ID, scene));
-        if (!success) {
-            PRINT_ERROR("Can't create new Scene.", "Given ID already exists. ID: {}", ID);
-        }
-    }
     scenesCount = scenes.size();
 
     for (const auto& [ID, scene] : scenes) {
