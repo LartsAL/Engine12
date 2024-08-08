@@ -20,40 +20,55 @@ auto Core::getInstance() -> Core& {
 }
 
 auto Core::initialize() -> void {
-    sceneManager.initialize();
-    windowManager.initialize();
-    fileManager.initialize();
-    objectManager.initialize();
-    componentManager.initialize();
-    // otherManagers.initialize();
-    // ...
+    if (!active) {
+        sceneManager.initialize();
+        windowManager.initialize();
+        fileManager.initialize();
+        objectManager.initialize();
+        componentManager.initialize();
+        // otherManagers.initialize();
+        // ...
+
+        active = true;
+    }
 }
 
 auto Core::update() -> void {
-    try {
-        sceneManager.update();
-        windowManager.update();
-        //fileManager.update();
-        objectManager.update();
-        componentManager.update();
-        // otherManagers.update()
-        // ...
-    } catch (EngineException& exception) {
-        PRINT_ERROR("Core::update() failed due to Engine exception. Shutting down.",
-                    "Code: {}\nWhat: {}\n", exception.code(), exception.what());
-        shutdown();
-    } catch (std::exception& exception) {
-        PRINT_ERROR("Core::update() failed due to std::exception.",
-                    "What: {}", exception.what());
+    if (active) {
+        try {
+            sceneManager.update();
+            windowManager.update();
+            //fileManager.update();
+            objectManager.update();
+            //componentManager.update();
+            // otherManagers.update()
+            // ...
+        } catch (EngineException &exception) {
+            PRINT_ERROR("Core::update() failed due to Engine exception. Shutting down.",
+                        "Code: {}\nWhat: {}\n", exception.code(), exception.what());
+            shutdown();
+        } catch (std::exception &exception) {
+            PRINT_ERROR("Core::update() failed due to std::exception. Shutting down.",
+                        "What: {}", exception.what());
+            shutdown();
+        }
     }
 }
 
 auto Core::shutdown() -> void {
-    sceneManager.shutdown();
-    windowManager.shutdown();
-    fileManager.shutdown();
-    objectManager.shutdown();
-    componentManager.shutdown();
-    // otherManagers.shutdown()
-    // ...
+    if (active) {
+        sceneManager.shutdown();
+        windowManager.shutdown();
+        fileManager.shutdown();
+        objectManager.shutdown();
+        componentManager.shutdown();
+        // otherManagers.shutdown()
+        // ...
+
+        active = false;
+    }
+}
+
+auto Core::isActive() -> bool {
+    return active;
 }

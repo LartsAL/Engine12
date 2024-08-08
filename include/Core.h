@@ -16,9 +16,13 @@ public:
     auto update() -> void;
     auto shutdown() -> void;
 
+    auto isActive() -> bool;
+
 private:
     Core();
     ~Core();
+
+    bool active;
 
     // Managers
     SceneManager& sceneManager;
