@@ -3,7 +3,10 @@
 #include <limits>
 
 #include "objects/Object.h"
+#include "managers/SceneManager.h"
 #include "systemutils/Error.h"
+
+SceneManager& o_sceneManager = SceneManager::getInstance();
 
 ObjectManager::ObjectManager():
     idSystem("Object"),
@@ -57,15 +60,30 @@ auto ObjectManager::shutdown() -> void {
     deleteAllObjects();
 }
 
-auto ObjectManager::createObject() -> ObjectID {
-    return idSystem.createID();
+auto ObjectManager::createObject(SceneID sceneID) -> ObjectID {
+    const auto scenePtr = o_sceneManager.getScene(sceneID);
+    if (!scenePtr) {
+        PRINT_ERROR("Given Scene ID is invalid.", "ID: {}", sceneID);
+        return 0;
+    }
+    ObjectID ID = idSystem.createID();
+    if (ID) {
+        scenePtr->addObject(ID);
+    }
+    return ID;
 }
 
-auto ObjectManager::deleteObject(ObjectID ID) -> void {
+auto ObjectManager::deleteObject(SceneID sceneID, ObjectID ID) -> void {
     if (!objects.contains(ID)) {
         PRINT_ERROR("Can't find Object with given ID.", "ID: {}", ID);
         return;
     }
+    const auto scenePtr = o_sceneManager.getScene(sceneID);
+    if (!scenePtr) {
+        PRINT_ERROR("Given Scene ID is invalid.", "ID: {}", sceneID);
+        return;
+    }
+    scenePtr->removeObject(ID);
     idSystem.deleteID(ID);
 }
 

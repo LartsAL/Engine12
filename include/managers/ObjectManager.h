@@ -18,8 +18,8 @@ public:
     auto update() -> void;
     auto shutdown() -> void;
 
-    auto createObject() -> ObjectID;
-    auto deleteObject(ObjectID ID) -> void;
+    auto createObject(SceneID sceneID) -> ObjectID;
+    auto deleteObject(SceneID sceneID, ObjectID ID) -> void;
     auto deleteAllObjects() -> void;
     auto getMaxObjects() const -> GLuint;
     auto getObjectsCount() const -> GLuint;
