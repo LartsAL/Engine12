@@ -8,9 +8,7 @@
 SceneManager& sceneManager = SceneManager::getInstance();
 
 WindowManager::WindowManager() noexcept:
-    maxWindows(),
-    windowsCount(),
-    nextFreeID() {}
+    windowsCount() {}
 
 WindowManager::~WindowManager() noexcept {
     shutdown();
@@ -22,20 +20,9 @@ auto WindowManager::getInstance() noexcept -> WindowManager& {
 }
 
 auto WindowManager::initialize() noexcept -> void {
-    maxWindows = std::numeric_limits<GLuint>::max();
     windowsCount = 0;
-    nextFreeID = 1;
-    freeIDs.clear();
     windows.clear();
-    while (!windowsIDsToDelete.empty()) {
-        windowsIDsToDelete.pop();
-    }
-    while (!windowsIDsToReuse.empty()) {
-        windowsIDsToReuse.pop();
-    }
-    while (!windowsIDsToCreate.empty()) {
-        windowsIDsToCreate.pop();
-    }
+    idSystem.reset();
     while (!windowsCreationInfo.empty()) {
         windowsCreationInfo.pop();
     }
@@ -60,22 +47,22 @@ auto WindowManager::initialize() noexcept -> void {
 }
 
 auto WindowManager::update() -> void {
-    while (!windowsIDsToDelete.empty()) {
-        WindowID ID = windowsIDsToDelete.front();
-        windowsIDsToDelete.pop();
+    while (!idSystem.toDelete.empty()) {
+        WindowID ID = idSystem.toDelete.front();
+        idSystem.toDelete.pop();
         windows.erase(ID);
-        freeIDs.insert(ID);
+        idSystem.freeIDs.insert(ID);
     }
 
-    while (!windowsIDsToReuse.empty()) {
-        WindowID ID = windowsIDsToReuse.front();
-        windowsIDsToReuse.pop();
+    while (!idSystem.toReuse.empty()) {
+        WindowID ID = idSystem.toReuse.front();
+        idSystem.toReuse.pop();
         windows.erase(ID);
     }
 
-    while (!windowsIDsToCreate.empty()) {
-        WindowID ID = windowsIDsToCreate.front();
-        windowsIDsToCreate.pop();
+    while (!idSystem.toCreate.empty()) {
+        WindowID ID = idSystem.toCreate.front();
+        idSystem.toCreate.pop();
 
         auto [width, height, title,
               monitor] = windowsCreationInfo.front();
@@ -106,16 +93,11 @@ auto WindowManager::update() -> void {
             g_currentWindow = ID;
         }
     }
+    windowsCount = windows.size();
 }
 
 auto WindowManager::shutdown() noexcept -> void {
     deleteAllWindows();
-    while (!windowsIDsToCreate.empty()) {
-        windowsIDsToCreate.pop();
-    }
-    while (!windowsCreationInfo.empty()) {
-        windowsCreationInfo.pop();
-    }
 }
 
 auto WindowManager::createWindow(SceneID linkedSceneID, GLint width, GLint height, const char* title,
@@ -132,28 +114,10 @@ auto WindowManager::createWindow(SceneID linkedSceneID, GLint width, GLint heigh
         return 0;
     }
 
-    WindowID ID;
-    if (windowsCount == maxWindows) {
-        if (windowsIDsToDelete.empty()) {
-            PRINT_ERROR("Can't create new Window.", "Maximum number of Windows reached: {}", maxWindows);
-            return 0;
-        } else {
-            ID = windowsIDsToDelete.front();
-            windowsIDsToDelete.pop();
-            windowsIDsToReuse.push(ID);
-            windowsIDsToCreate.push(ID);
-            return ID;
-        }
+    WindowID ID = idSystem.createID();
+    if(ID) {
+        windowsCreationInfo.emplace(width, height, title, monitor);
     }
-    if (!freeIDs.empty()) {
-        ID = *freeIDs.begin();
-        freeIDs.erase(freeIDs.begin());
-    } else {
-        ID = nextFreeID++;
-    }
-    windowsIDsToCreate.push(ID);
-    windowsCreationInfo.emplace(width, height, title, monitor);
-
     return ID;
 }
 
@@ -162,18 +126,14 @@ auto WindowManager::deleteWindow(WindowID ID) noexcept -> void {
         PRINT_ERROR("Can't find Window with given ID.", "ID: {}", ID);
         return;
     }
-    windowsIDsToDelete.push(ID);
+    idSystem.deleteID(ID);
 }
 
 auto WindowManager::deleteAllWindows() noexcept -> void {
     windows.clear();
-    nextFreeID = 0;
-    freeIDs.clear();
-    while (!windowsIDsToDelete.empty()) {
-        windowsIDsToDelete.pop();
-    }
-    while (!windowsIDsToReuse.empty()) {
-        windowsIDsToReuse.pop();
+    idSystem.reset();
+    while (!windowsCreationInfo.empty()) {
+        windowsCreationInfo.pop();
     }
 }
 

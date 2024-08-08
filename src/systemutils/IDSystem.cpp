@@ -9,16 +9,7 @@ IDSystem::IDSystem() noexcept:
     className(nullptr) {}
 
 IDSystem::~IDSystem() noexcept {
-    freeIDs.clear();
-    while (!toDelete.empty()) {
-        toDelete.pop();
-    }
-    while (!toReuse.empty()) {
-        toReuse.pop();
-    }
-    while (!toCreate.empty()) {
-        toCreate.pop();
-    }
+    reset();
 }
 
 auto IDSystem::createID() noexcept -> GLuint {

@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include "objects/Scene.h"
 #include "systemutils/GlobalVars.h"
+#include "systemutils/IDSystem.h"
 
 class SceneManager {
 public:
@@ -25,12 +26,7 @@ private:
     SceneManager();
     ~SceneManager();
 
-    GLuint maxScenes;
     GLuint scenesCount;
-    GLuint nextFreeID;
-    std::set<SceneID> freeIDs;
     std::unordered_map<SceneID, std::shared_ptr<Scene>> scenes;
-    std::queue<SceneID> scenesIDsToDelete;
-    std::queue<SceneID> scenesIDsToReuse;       // Who the fuck can reach 4.7 billion scenes?
-    std::queue<SceneID> scenesIDsToCreate;
+    IDSystem idSystem;
 };

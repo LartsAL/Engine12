@@ -6,7 +6,7 @@
 #include "systemutils/Error.h"
 
 ObjectManager::ObjectManager():
-    idSystem() {}
+    objectsCount() {}
 
 ObjectManager::~ObjectManager() {
     idSystem.~IDSystem();
@@ -19,6 +19,8 @@ auto ObjectManager::getInstance() -> ObjectManager& {
 
 auto ObjectManager::initialize() -> void {
     objects.clear();
+    objectsCount = 0;
+    idSystem.reset();
 }
 
 auto ObjectManager::update() -> void {

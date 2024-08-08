@@ -37,14 +37,9 @@ private:
 
     auto initializeGLAD(WindowID ID) const -> void;
 
-    GLuint maxWindows;
     GLuint windowsCount;
-    GLuint nextFreeID;
-    std::set<WindowID> freeIDs;
     std::unordered_map<GLuint, std::shared_ptr<GLFWwindow>> windows;
-    std::queue<WindowID> windowsIDsToDelete;
-    std::queue<WindowID> windowsIDsToReuse;
-    std::queue<WindowID> windowsIDsToCreate;
+    IDSystem idSystem;
     std::queue<WindowInfo> windowsCreationInfo;
     std::unordered_map<GLint, GLint> hintsDefaults;
 };
