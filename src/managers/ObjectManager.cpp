@@ -6,19 +6,10 @@
 #include "systemutils/Error.h"
 
 ObjectManager::ObjectManager():
-    maxObjects(),
-    objectsCount(),
-    nextFreeID() {}
+    idSystem() {}
 
 ObjectManager::~ObjectManager() {
-    freeIDs.clear();
-    objects.clear();
-    while (!objectsIDsToDelete.empty()) {
-        objectsIDsToDelete.pop();
-    }
-    while (!objectsIDsToCreate.empty()) {
-        objectsIDsToCreate.pop();
-    }
+    idSystem.~IDSystem();
 }
 
 auto ObjectManager::getInstance() -> ObjectManager& {
@@ -27,41 +18,28 @@ auto ObjectManager::getInstance() -> ObjectManager& {
 }
 
 auto ObjectManager::initialize() -> void {
-    maxObjects = std::numeric_limits<GLuint>::max();
-    objectsCount = 0;
-    nextFreeID = 1;
-    freeIDs.clear();
     objects.clear();
-    while (!objectsIDsToDelete.empty()) {
-        objectsIDsToDelete.pop();
-    }
-    while (!objectsIDsToReuse.empty()) {
-        objectsIDsToReuse.pop();
-    }
-    while (!objectsIDsToCreate.empty()) {
-        objectsIDsToCreate.pop();
-    }
 }
 
 auto ObjectManager::update() -> void {
     // Delete all Objects from queue
-    while (!objectsIDsToDelete.empty()) {
-        ObjectID ID = objectsIDsToDelete.front();
-        objectsIDsToDelete.pop();
+    while (!idSystem.toDelete.empty()) {
+        ObjectID ID = idSystem.toDelete.front();
+        idSystem.toDelete.pop();
         objects.erase(ID);
-        freeIDs.insert(ID);
+        idSystem.freeIDs.insert(ID);
     }
 
-    while (!objectsIDsToReuse.empty()) {
-        ObjectID ID = objectsIDsToReuse.front();
-        objectsIDsToReuse.pop();
+    while (!idSystem.toReuse.empty()) {
+        ObjectID ID = idSystem.toReuse.front();
+        idSystem.toReuse.pop();
         objects.erase(ID);
     }
 
     // Create all Objects from queue
-    while (!objectsIDsToCreate.empty()) {
-        GLuint ID = objectsIDsToCreate.front();
-        objectsIDsToCreate.pop();
+    while (!idSystem.toCreate.empty()) {
+        GLuint ID = idSystem.toCreate.front();
+        idSystem.toCreate.pop();
 
         const auto object = std::make_shared<Object>(ID);
 
@@ -80,35 +58,10 @@ auto ObjectManager::update() -> void {
 
 auto ObjectManager::shutdown() -> void {
     deleteAllObjects();
-    while (!objectsIDsToCreate.empty()) {
-        objectsIDsToCreate.pop();
-    }
 }
 
 auto ObjectManager::createObject() -> ObjectID {
-    ObjectID ID;
-    // If we free some IDs, we can book them for new Objects
-    if (objectsCount == maxObjects) {
-        if (objectsIDsToDelete.empty()) {
-            PRINT_ERROR("Can't create new Object.", "Maximum number of Objects reached: {}", maxObjects);
-            return 0;
-        } else {
-            ID = objectsIDsToDelete.front();
-            objectsIDsToDelete.pop();
-            objectsIDsToReuse.push(ID);     // Now we're sure we can't book this ID again
-            objectsIDsToCreate.push(ID);
-            return ID;
-        }
-    }
-    // Generate new unique ID
-    if (!freeIDs.empty()) {
-        ID = *freeIDs.begin();
-        freeIDs.erase(freeIDs.begin());
-    } else {
-        ID = nextFreeID++;
-    }
-    objectsIDsToCreate.push(ID);
-    return ID;
+    return idSystem.createID();
 }
 
 auto ObjectManager::deleteObject(ObjectID ID) -> void {
@@ -116,23 +69,16 @@ auto ObjectManager::deleteObject(ObjectID ID) -> void {
         PRINT_ERROR("Can't find Object with given ID.", "ID: {}", ID);
         return;
     }
-    objectsIDsToDelete.push(ID);
+    idSystem.deleteID(ID);
 }
 
 auto ObjectManager::deleteAllObjects() -> void {
     objects.clear();
-    nextFreeID = 0;
-    freeIDs.clear();
-    while (!objectsIDsToDelete.empty()) {
-        objectsIDsToDelete.pop();
-    }
-    while (!objectsIDsToReuse.empty()) {
-        objectsIDsToReuse.pop();
-    }
+    idSystem.reset();
 }
 
 auto ObjectManager::getMaxObjects() const -> GLuint {
-    return maxObjects;
+    return idSystem.max;
 }
 
 auto ObjectManager::getObjectsCount() const -> GLuint {

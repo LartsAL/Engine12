@@ -36,6 +36,7 @@ auto IDSystem::createID() noexcept -> GLuint {
             toDelete.pop();
             toReuse.push(ID);
             toCreate.push(ID);
+            count++;
             return ID;
         }
     }
@@ -46,6 +47,7 @@ auto IDSystem::createID() noexcept -> GLuint {
         ID = nextFreeID++;
     }
     toCreate.push(ID);
+    count++;
     return ID;
 }
 
@@ -55,4 +57,19 @@ auto IDSystem::deleteID(GLuint ID) noexcept -> void {
 
 auto IDSystem::setClassName(const char* name) noexcept -> void {
     className = name;
+}
+
+auto IDSystem::resetQueue(std::queue<GLuint>& queue) -> void {
+    while (!queue.empty()) {
+        queue.pop();
+    }
+}
+
+auto IDSystem::reset() -> void {
+    count = 0;
+    nextFreeID = 0;
+    freeIDs.clear();
+    resetQueue(toCreate);
+    resetQueue(toDelete);
+    resetQueue(toReuse);
 }

@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 #include "objects/Object.h"
 #include "systemutils/GlobalVars.h"
+#include "systemutils/IDSystem.h"
 
 class ObjectManager {
 public:
@@ -27,12 +28,7 @@ private:
     ObjectManager();
     ~ObjectManager();
 
-    GLuint maxObjects;                          // Maximum existing objects
-    GLuint objectsCount;                        // Number of existing objects
-    ObjectID nextFreeID;                        // Next available ID for new Object
-    std::set<ObjectID> freeIDs;                 // Pool of reusable IDs freed from deleted Objects
+    IDSystem idSystem;
+    GLuint objectsCount;
     std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;
-    std::queue<ObjectID> objectsIDsToDelete;    // Objects which will be deleted during update
-    std::queue<ObjectID> objectsIDsToReuse;     // If we book some IDs from objectsIDsToDelete, they'll go here to prevent double book of the same ID
-    std::queue<ObjectID> objectsIDsToCreate;    // Objects which will be created during update
 };
