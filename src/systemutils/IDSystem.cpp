@@ -18,21 +18,12 @@ IDSystem::~IDSystem() noexcept {
 auto IDSystem::createID() noexcept -> GLuint {
     GLuint ID;
     if (count == max) {
-        if (toDelete.empty()) {
-            if (className) {
-                PRINT_ERROR("Can't create new ID.", "Maximum number of {}s reached: {}", className, max);
-            } else {
-                PRINT_ERROR("Can't create new ID.", "Maximum number of A-objects reached: {}", max);
-            }
-            return 0;
+        if (className) {
+            PRINT_ERROR("Can't create new ID.", "Maximum number of {}s reached: {}", className, max);
         } else {
-            ID = toDelete.front();
-            toDelete.pop();
-            toReuse.push(ID);
-            toCreate.push(ID);
-            count++;
-            return ID;
+            PRINT_ERROR("Can't create new ID.", "Maximum number of A-objects reached: {}", max);
         }
+        return 0;
     }
     if (!freeIDs.empty()) {
         ID = *freeIDs.begin();
@@ -60,7 +51,6 @@ auto IDSystem::reset() noexcept -> void {
     freeIDs.clear();
     resetQueue(toCreate);
     resetQueue(toDelete);
-    resetQueue(toReuse);
 }
 
 auto IDSystem::getMax() const noexcept -> GLuint {

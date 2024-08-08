@@ -17,7 +17,6 @@ public:
     auto getMax() const noexcept -> GLuint;
 
     std::queue<GLuint> toDelete;
-    std::queue<GLuint> toReuse;
     std::queue<GLuint> toCreate;
     std::set<GLuint> freeIDs;
 private:
