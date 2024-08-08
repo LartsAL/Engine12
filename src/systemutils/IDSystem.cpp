@@ -3,10 +3,7 @@
 #include "systemutils/Error.h"
 
 IDSystem::IDSystem() noexcept:
-    count(0),
-    max(std::numeric_limits<GLuint>::max()),
-    nextFreeID(1),
-    className(nullptr) {}
+    IDSystem(nullptr) {}
 
 IDSystem::IDSystem(const char* classname) noexcept:
     count(0),
@@ -59,7 +56,7 @@ auto IDSystem::setClassName(const char* name) noexcept -> void {
 
 auto IDSystem::reset() noexcept -> void {
     count = 0;
-    nextFreeID = 0;
+    nextFreeID = 1;
     freeIDs.clear();
     resetQueue(toCreate);
     resetQueue(toDelete);
