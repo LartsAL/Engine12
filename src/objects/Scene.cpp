@@ -1,5 +1,7 @@
 #include "objects/Scene.h"
 
+#include "systemutils/Error.h"
+
 // TODO:
 // #include "managers/ScriptManager.h"
 
@@ -18,6 +20,19 @@ auto Scene::update() -> void {
             //     script.update();
             // }
         }
+    }
+}
+
+auto Scene::addObject(ObjectID objectID) -> void {
+    const auto [it, success] = sceneObjects.insert(objectID);
+    if (!success) {
+        PRINT_ERROR("Can't insert Object into Scene", "Given ID already exist. ID: {}", objectID);
+    }
+}
+
+auto Scene::removeObject(ObjectID objectID) -> void {
+    if (sceneObjects.contains(objectID)) {
+        sceneObjects.erase(objectID);
     }
 }
 
