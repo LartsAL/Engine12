@@ -81,7 +81,7 @@ auto ObjectManager::deleteAllObjects() -> void {
 }
 
 auto ObjectManager::getMaxObjects() const -> GLuint {
-    return idSystem.max;
+    return idSystem.getMax();
 }
 
 auto ObjectManager::getObjectsCount() const -> GLuint {

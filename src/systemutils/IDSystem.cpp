@@ -57,17 +57,21 @@ auto IDSystem::setClassName(const char* name) noexcept -> void {
     className = name;
 }
 
-auto IDSystem::resetQueue(std::queue<GLuint>& queue) -> void {
-    while (!queue.empty()) {
-        queue.pop();
-    }
-}
-
-auto IDSystem::reset() -> void {
+auto IDSystem::reset() noexcept -> void {
     count = 0;
     nextFreeID = 0;
     freeIDs.clear();
     resetQueue(toCreate);
     resetQueue(toDelete);
     resetQueue(toReuse);
+}
+
+auto IDSystem::getMax() const noexcept -> GLuint {
+    return max;
+}
+
+auto IDSystem::resetQueue(std::queue<GLuint>& queue) noexcept -> void {
+    while (!queue.empty()) {
+        queue.pop();
+    }
 }

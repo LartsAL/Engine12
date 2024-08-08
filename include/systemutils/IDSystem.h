@@ -7,26 +7,24 @@
 class IDSystem {
 public:
     IDSystem() noexcept;
-    IDSystem(const char* classname) noexcept;
+    explicit IDSystem(const char* classname) noexcept;
     ~IDSystem() noexcept;
 
     auto createID() noexcept -> GLuint;
     auto deleteID(GLuint ID) noexcept -> void;
     auto setClassName(const char* name) noexcept -> void;
-
-    auto reset() -> void; // reverts IDSystem state back to when it's conctructor have been just called
-
-    GLuint max;
+    auto reset() noexcept -> void;      // reverts IDSystem state back to when it's constructor have been just called
+    auto getMax() const noexcept -> GLuint;
 
     std::queue<GLuint> toDelete;
     std::queue<GLuint> toReuse;
     std::queue<GLuint> toCreate;
     std::set<GLuint> freeIDs;
-
 private:
-    GLuint count;               //number of given ID's
+    auto resetQueue(std::queue<GLuint>& queue) noexcept -> void;
+
+    GLuint max;
+    GLuint count;               // Number of given ID's
     GLuint nextFreeID;
     const char* className;
-
-    static auto resetQueue(std::queue<GLuint>& queue) -> void;
 };
