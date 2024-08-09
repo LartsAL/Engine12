@@ -2,9 +2,6 @@
 
 #include "systemutils/Error.h"
 
-IDSystem::IDSystem() noexcept:
-    IDSystem(nullptr) {}
-
 IDSystem::IDSystem(const char* classname) noexcept:
     count(0),
     max(std::numeric_limits<GLuint>::max()),
