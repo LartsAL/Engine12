@@ -66,14 +66,11 @@ auto WindowManager::update() -> void {
             throw EngineException("Given Scene already linked with one Window.", ENGINE_EXCEPT_SCENE_ALREADY_LINKED);
         }
 
-        const auto window = std::shared_ptr<GLFWwindow>(
-                glfwCreateWindow(width, height, title, monitor, nullptr),
-                [](GLFWwindow* window) -> void { if (window) glfwDestroyWindow(window); }
-        );
+        scenePtr->setLinkedWindow(ID);
 
-        if (!window) {
-            throw EngineException("Window creation failed.", ENGINE_EXCEPT_WINDOW_CREATION_FAILED);
-        }
+        const auto window = std::make_shared<Window>(
+                ID, linkedSceneID, width, height, title, monitor
+        );
 
         const auto [it, success] = windows.insert(std::make_pair(ID, window));
         if (!success) {
@@ -132,12 +129,16 @@ auto WindowManager::deleteAllWindows() noexcept -> void {
 }
 
 auto WindowManager::setActiveWindow(WindowID ID) const noexcept -> void {
+    if (!ID) {
+        glfwMakeContextCurrent(nullptr);        // If 0 is passed, detach context
+        return;
+    }
     if (!windows.contains(ID)) {
         PRINT_ERROR("Can't find Window with given ID.", "ID: {}", ID);
         return;
     }
     const auto window = windows.at(ID);
-    glfwMakeContextCurrent(window.get());
+    glfwMakeContextCurrent(window->getRawPointer());
     g_currentWindow = ID;
 }
 
@@ -166,3 +167,10 @@ auto WindowManager::resetWindowHints() const noexcept -> void {
     }
 }
 
+auto WindowManager::getWindowPtr(WindowID ID) const noexcept -> std::shared_ptr<Window> {
+    if (!windows.contains(ID)) {
+        PRINT_ERROR("Can't find Window with given ID.", "ID: {}", ID);
+        return nullptr;
+    }
+    return windows.at(ID);
+}

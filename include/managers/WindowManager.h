@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "objects/Window.h"
 #include "systemutils/GlobalVars.h"
 #include "systemutils/IDSystem.h"
 
@@ -30,6 +32,7 @@ public:
     auto enableVSync(bool state) const noexcept -> void;
     auto setWindowHint(GLint hint, GLint value) const noexcept -> void;
     auto resetWindowHints() const noexcept -> void;
+    auto getWindowPtr(WindowID ID) const noexcept -> std::shared_ptr<Window>;
 
 private:
     WindowManager() noexcept;
@@ -38,7 +41,7 @@ private:
     auto initializeGLAD(WindowID ID) const -> void;
 
     GLuint windowsCount;
-    std::unordered_map<GLuint, std::shared_ptr<GLFWwindow>> windows;
+    std::unordered_map<GLuint, std::shared_ptr<Window>> windows;
     IDSystem idSystem;
     std::queue<WindowInfo> windowsCreationInfo;
     std::unordered_map<GLint, GLint> hintsDefaults;

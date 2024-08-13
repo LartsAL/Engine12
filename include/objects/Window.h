@@ -7,15 +7,23 @@
 
 class Window {
 public:
-    Window(WindowID ID, SceneID linkedScene);
+    Window(WindowID ID, SceneID linkedScene, GLint width, GLint height,
+           const char* title = nullptr, GLFWmonitor* monitor = nullptr);
 
-    auto getRawPointer() -> GLFWwindow*;
+    auto getSmartPointer() const noexcept -> std::shared_ptr<GLFWwindow>;
+    auto getRawPointer() const noexcept -> GLFWwindow*;
+    auto getWidth() const noexcept -> GLint;
+    auto getHeight() const noexcept -> GLint;
+    auto getTitle() const noexcept -> const char*;
+    auto getMonitor() const noexcept -> GLFWmonitor*;
 
 private:
     WindowID                    ID;
     SceneID                     linkedScene;
     std::shared_ptr<GLFWwindow> window;
-//    GLuint                      width;
-//    GLuint                      height;
-//    const char*                 title;
+
+    GLint                       width;
+    GLint                       height;
+    const char*                 title;
+    GLFWmonitor*                monitor;
 };
