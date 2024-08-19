@@ -11,22 +11,22 @@
 
 class SceneManager {
 public:
-    static auto getInstance() -> SceneManager&;
+    static auto getInstance() noexcept -> SceneManager&;
 
-    auto initialize() -> void;
+    auto initialize() noexcept -> void;
     auto update() -> void;
-    auto shutdown() -> void;
+    auto shutdown() noexcept -> void;
 
     auto createScene() -> SceneID;
-    auto deleteScene(SceneID ID) -> void;
-    auto deleteAllScenes() -> void;
-    auto getScene(SceneID ID) -> std::shared_ptr<Scene>;
+    auto deleteScene(SceneID ID) noexcept -> void;
+    auto deleteAllScenes() noexcept -> void;
+    auto getScene(SceneID ID) const noexcept -> std::shared_ptr<Scene>;
+    auto getScenesCount() const noexcept -> GLuint;
 
 private:
-    SceneManager();
-    ~SceneManager();
+    SceneManager() noexcept;
+    ~SceneManager() noexcept;
 
-    GLuint scenesCount;
-    std::unordered_map<SceneID, std::shared_ptr<Scene>> scenes;
     IDSystem idSystem;
+    std::unordered_map<SceneID, std::shared_ptr<Scene>> scenes;
 };

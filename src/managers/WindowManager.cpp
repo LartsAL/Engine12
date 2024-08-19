@@ -8,8 +8,7 @@
 SceneManager& w_sceneManager = SceneManager::getInstance();
 
 WindowManager::WindowManager() noexcept:
-    idSystem("Window"),
-    windowsCount() {}
+    idSystem("Window") {}
 
 WindowManager::~WindowManager() noexcept {
     shutdown();
@@ -21,12 +20,8 @@ auto WindowManager::getInstance() noexcept -> WindowManager& {
 }
 
 auto WindowManager::initialize() noexcept -> void {
-    windowsCount = 0;
     windows.clear();
     idSystem.reset();
-    while (!windowsCreationInfo.empty()) {
-        windowsCreationInfo.pop();
-    }
     hintsDefaults = {
             {GLFW_RESIZABLE, GLFW_TRUE},
             {GLFW_VISIBLE, GLFW_TRUE},
@@ -48,55 +43,7 @@ auto WindowManager::initialize() noexcept -> void {
 }
 
 auto WindowManager::update() -> void {
-    while (!idSystem.toCreate.empty()) {
-        WindowID ID = idSystem.toCreate.front();
-        idSystem.toCreate.pop();
-
-        const auto [linkedSceneID, width, height,
-              title, monitor] = windowsCreationInfo.front();
-        windowsCreationInfo.pop();
-
-        const auto scenePtr = w_sceneManager.getScene(linkedSceneID);
-        if (!scenePtr) {
-            throw EngineException("Function returned nullptr.", ENGINE_EXCEPT_NULLPTR_RECEIVED);
-        }
-
-        WindowID sceneLinkedWindow = scenePtr->getLinkedWindow();
-        if (sceneLinkedWindow) {
-            throw EngineException("Given Scene already linked with one Window.", ENGINE_EXCEPT_SCENE_ALREADY_LINKED);
-        }
-
-        scenePtr->setLinkedWindow(ID);
-
-        const auto window = std::make_shared<Window>(
-                ID, linkedSceneID, width, height, title, monitor
-        );
-
-        const auto [it, success] = windows.insert(std::make_pair(ID, window));
-        if (!success) {
-            PRINT_ERROR("Can't create new Window.", "Given ID already exists. ID: {}", ID);
-            continue;
-        }
-
-        WindowID tmp = g_currentWindow;
-
-        initializeGLAD(ID);
-
-        if (tmp) {
-            setActiveWindow(tmp);
-        } else {
-            g_currentWindow = ID;
-        }
-    }
-
-    while (!idSystem.toDelete.empty()) {
-        WindowID ID = idSystem.toDelete.front();
-        idSystem.toDelete.pop();
-        windows.erase(ID);
-        idSystem.freeIDs.insert(ID);
-    }
-
-    windowsCount = windows.size();
+    // Nothing to do here for now
 }
 
 auto WindowManager::shutdown() noexcept -> void {
@@ -105,10 +52,43 @@ auto WindowManager::shutdown() noexcept -> void {
 
 auto WindowManager::createWindow(SceneID linkedSceneID, GLint width, GLint height, const char* title,
                                  GLFWmonitor* monitor) -> WindowID {
+    // Create unique ID
     WindowID ID = idSystem.createID();
+
     if (ID) {
-        windowsCreationInfo.emplace(linkedSceneID, width, height, title, monitor);
+        // Link given Scene with the created Window
+        const auto scenePtr = w_sceneManager.getScene(linkedSceneID);
+        if (!scenePtr) {
+            idSystem.deleteID(ID);
+            throw EngineException("Function returned nullptr.", ENGINE_EXCEPT_NULLPTR_RECEIVED);
+        }
+
+        WindowID sceneLinkedWindow = scenePtr->getLinkedWindow();
+        if (sceneLinkedWindow) {
+            idSystem.deleteID(ID);
+            throw EngineException("Given Scene already linked with one Window.", ENGINE_EXCEPT_SCENE_ALREADY_LINKED);
+        }
+
+        scenePtr->setLinkedWindow(ID);
+
+        // Window creation
+        const auto window = std::make_shared<Window>(ID, linkedSceneID, width, height, title, monitor);
+        if (!window) {
+            idSystem.deleteID(ID);
+            throw EngineException("Can't create instance of Window.", ENGINE_EXCEPT_OBJECT_CREATION_FAILED);
+        }
+
+        // Trying to insert into map
+        const auto [it, success] = windows.insert(std::make_pair(ID, window));
+        if (!success) {
+            idSystem.deleteID(ID);
+            PRINT_ERROR("Can't create new Window.", "Given ID already exists. ID: {}", ID);
+            return 0;
+        }
+
+        initializeGLAD(ID);
     }
+
     return ID;
 }
 
@@ -123,9 +103,6 @@ auto WindowManager::deleteWindow(WindowID ID) noexcept -> void {
 auto WindowManager::deleteAllWindows() noexcept -> void {
     windows.clear();
     idSystem.reset();
-    while (!windowsCreationInfo.empty()) {
-        windowsCreationInfo.pop();
-    }
 }
 
 auto WindowManager::setActiveWindow(WindowID ID) const noexcept -> void {
@@ -143,9 +120,17 @@ auto WindowManager::setActiveWindow(WindowID ID) const noexcept -> void {
 }
 
 auto WindowManager::initializeGLAD(WindowID ID) const -> void {
+    WindowID tmp = g_currentWindow;
+
     setActiveWindow(ID);
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         throw EngineException("GLAD load failed.", ENGINE_EXCEPT_GLAD_INIT_FAILED);
+    }
+
+    if (tmp) {
+        setActiveWindow(tmp);
+    } else {
+        g_currentWindow = ID;
     }
 }
 
@@ -157,7 +142,7 @@ auto WindowManager::setWindowHint(GLint hint, GLint value) const noexcept -> voi
     if (hintsDefaults.contains(hint)) {
         glfwWindowHint(hint, value);
     } else {
-        PRINT_ERROR("Hint is not supported.");
+        PRINT_ERROR("This hint is not supported.");
     }
 }
 
@@ -173,4 +158,8 @@ auto WindowManager::getWindowPtr(WindowID ID) const noexcept -> std::shared_ptr<
         return nullptr;
     }
     return windows.at(ID);
+}
+
+auto WindowManager::getWindowsCount() const noexcept -> GLuint {
+    return idSystem.getIDCount();
 }

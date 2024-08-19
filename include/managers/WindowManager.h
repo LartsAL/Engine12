@@ -13,8 +13,6 @@
 #include "systemutils/GlobalVars.h"
 #include "systemutils/IDSystem.h"
 
-using WindowInfo = std::tuple<GLuint, GLint, GLint, const char*, GLFWmonitor*>;
-
 class WindowManager {
 public:
     static auto getInstance() noexcept -> WindowManager&;
@@ -33,6 +31,7 @@ public:
     auto setWindowHint(GLint hint, GLint value) const noexcept -> void;
     auto resetWindowHints() const noexcept -> void;
     auto getWindowPtr(WindowID ID) const noexcept -> std::shared_ptr<Window>;
+    auto getWindowsCount() const noexcept -> GLuint;
 
 private:
     WindowManager() noexcept;
@@ -40,9 +39,7 @@ private:
 
     auto initializeGLAD(WindowID ID) const -> void;
 
-    GLuint windowsCount;
-    std::unordered_map<GLuint, std::shared_ptr<Window>> windows;
     IDSystem idSystem;
-    std::queue<WindowInfo> windowsCreationInfo;
+    std::unordered_map<GLuint, std::shared_ptr<Window>> windows;
     std::unordered_map<GLint, GLint> hintsDefaults;
 };

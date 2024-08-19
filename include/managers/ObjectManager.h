@@ -12,23 +12,22 @@
 
 class ObjectManager {
 public:
-    static auto getInstance() -> ObjectManager&;
+    static auto getInstance() noexcept -> ObjectManager&;
 
-    auto initialize() -> void;
+    auto initialize() noexcept -> void;
     auto update() -> void;
-    auto shutdown() -> void;
+    auto shutdown() noexcept -> void;
 
     auto createObject(SceneID sceneID) -> ObjectID;
-    auto deleteObject(SceneID sceneID, ObjectID ID) -> void;
-    auto deleteAllObjects() -> void;
-    auto getMaxObjects() const -> GLuint;
-    auto getObjectsCount() const -> GLuint;
+    auto deleteObject(SceneID sceneID, ObjectID ID) noexcept -> void;
+    auto deleteAllObjects() noexcept -> void;
+    auto getMaxObjects() const noexcept -> GLuint;
+    auto getObjectsCount() const noexcept -> GLuint;
 
 private:
-    ObjectManager();
-    ~ObjectManager();
+    ObjectManager() noexcept;
+    ~ObjectManager() noexcept;
 
     IDSystem idSystem;
-    GLuint objectsCount;
     std::unordered_map<ObjectID, std::shared_ptr<Object>> objects;
 };

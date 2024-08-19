@@ -28,13 +28,12 @@ auto IDSystem::createID() noexcept -> GLuint {
     } else {
         ID = nextFreeID++;
     }
-    toCreate.push(ID);
     count++;
     return ID;
 }
 
 auto IDSystem::deleteID(GLuint ID) noexcept -> void {
-    toDelete.push(ID);
+    freeIDs.insert(ID);
     count--;
 }
 
@@ -46,16 +45,12 @@ auto IDSystem::reset() noexcept -> void {
     count = 0;
     nextFreeID = 1;
     freeIDs.clear();
-    resetQueue(toCreate);
-    resetQueue(toDelete);
 }
 
 auto IDSystem::getMax() const noexcept -> GLuint {
     return max;
 }
 
-auto IDSystem::resetQueue(std::queue<GLuint>& queue) noexcept -> void {
-    while (!queue.empty()) {
-        queue.pop();
-    }
+auto IDSystem::getIDCount() const noexcept -> GLuint {
+    return count;
 }

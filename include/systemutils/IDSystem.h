@@ -2,7 +2,7 @@
 
 #include <set>
 #include <queue>
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 class IDSystem {
 public:
@@ -12,15 +12,12 @@ public:
     auto createID() noexcept -> GLuint;
     auto deleteID(GLuint ID) noexcept -> void;
     auto setClassName(const char* name) noexcept -> void;
-    auto reset() noexcept -> void;      // reverts IDSystem state back to when it's constructor have been just called
+    auto reset() noexcept -> void;      // Reverts IDSystem state back to when its constructor have been just called
     auto getMax() const noexcept -> GLuint;
+    auto getIDCount() const noexcept -> GLuint;
 
-    std::queue<GLuint> toDelete;
-    std::queue<GLuint> toCreate;
     std::set<GLuint> freeIDs;
 private:
-    auto resetQueue(std::queue<GLuint>& queue) noexcept -> void;
-
     GLuint max;
     GLuint count;               // Number of given ID's
     GLuint nextFreeID;
