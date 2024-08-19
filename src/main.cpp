@@ -5,10 +5,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "managers/FileManager.h"
 #include "components/Shader.h"
 #include "components/Texture.h"
-#include "managers/InputManager.h"
+//#include "managers/FileManager.h"
+//#include "managers/InputManager.h"
+//#include "managers/WindowManager.h"
+//#include "managers/SceneManager.h"
+#include <Core.h>
 
 using namespace std;
 
@@ -43,7 +46,14 @@ GLfloat pitch = 0.0f;
 GLfloat fov = 45.0f;
 
 int main(int argc, char* argv[]) {
+    // # Testing
+    Core& core = Core::getInstance();
+    core.initialize();
+
     FileManager& fileManager = FileManager::getInstance();
+    WindowManager& windowManager = WindowManager::getInstance();
+    SceneManager& sceneManager = SceneManager::getInstance();
+
 
     // Инициализация GLFW
     glfwInit();
@@ -58,6 +68,10 @@ int main(int argc, char* argv[]) {
 
     // Запрет изменения размеров окна
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    // # Testing
+    auto scene1 = sceneManager.createScene();
+    auto window1 = windowManager.createWindow(scene1, 600, 400);
 
 
     // Создание объекта окна
@@ -254,6 +268,11 @@ int main(int argc, char* argv[]) {
 
     // Основной цикл
     while (!glfwWindowShouldClose(window)) {
+        // # Testing
+        core.update();
+
+        glfwMakeContextCurrent(window);
+
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -329,6 +348,9 @@ int main(int argc, char* argv[]) {
         // Переключение буферов
         glfwSwapBuffers(window);
     }
+
+    // # Testing
+    core.shutdown();
 
     // Освобождение ресурсов
     glfwTerminate();
