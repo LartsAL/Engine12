@@ -7,6 +7,7 @@
 #define ENGINE_EXCEPT_GLAD_INIT_FAILED          3
 #define ENGINE_EXCEPT_SCENE_ALREADY_LINKED      4
 #define ENGINE_EXCEPT_NULLPTR_RECEIVED          5
+#define ENGINE_EXCEPT_OBJECT_CREATION_FAILED    6
 
 class EngineException : public std::exception {
 public:
