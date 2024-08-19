@@ -7,15 +7,16 @@
 
 class Scene {
 public:
-    explicit Scene(SceneID ID, bool active = true);
+    explicit Scene(SceneID ID, bool active = true) noexcept;
 
     auto update() -> void;
 
-    auto addObject(ObjectID objectID) -> void;
-    auto removeObject(ObjectID objectID) -> void;
-    auto isActive() -> bool;
-    auto getID() -> SceneID;
-    auto getLinkedWindow() -> WindowID;
+    auto addObject(ObjectID objectID) noexcept -> void;
+    auto removeObject(ObjectID objectID) noexcept -> void;
+    auto isActive() const noexcept -> bool;
+    auto getID() const noexcept -> SceneID;
+    auto setLinkedWindow(WindowID windowID) noexcept -> void;
+    auto getLinkedWindow() const noexcept -> WindowID;
 
 private:
     bool                            active;
