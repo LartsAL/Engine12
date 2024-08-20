@@ -34,18 +34,22 @@ auto ObjectManager::shutdown() noexcept -> void {
     deleteAllObjects();
 }
 
-auto ObjectManager::createObject(SceneID sceneID) -> ObjectID {
-    // Validate SceneID
+auto ObjectManager::createObject(SceneID sceneID, const char* name) -> ObjectID {
+    // Validate SceneID and name uniqueness in Scene
     const auto scenePtr = o_sceneManager.getScene(sceneID);
     if (!scenePtr) {
         PRINT_ERROR("Given Scene ID is invalid.", "ID: {}", sceneID);
+        return 0;
+    }
+    if (name && scenePtr->namesToObjects.contains(name)) {
+        PRINT_ERROR("Given Scene already has an object with such name.", "SceneID: {}\nname: {}", sceneID, name);
         return 0;
     }
 
     // Create unique ID
     ObjectID ID = idSystem.createID();
     if (ID) {
-        const auto object = std::make_shared<Object>(ID);
+        const auto object = std::make_shared<Object>(ID, sceneID, name);
         if (!object) {
             idSystem.deleteID(ID);
             throw EngineException("Can't create instance of Object", ENGINE_EXCEPT_OBJECT_CREATION_FAILED);
@@ -58,11 +62,24 @@ auto ObjectManager::createObject(SceneID sceneID) -> ObjectID {
             return 0;
         }
 
-        scenePtr->addObject(ID);
+        scenePtr->addObject(ID, name);
     }
 
     return ID;
 }
+
+auto ObjectManager::findObjectByName(SceneID sceneID, const char* name) -> ObjectID {
+    const auto scenePtr = o_sceneManager.getScene(sceneID);
+    if (!scenePtr) {
+        PRINT_ERROR("Given Scene ID is invalid.", "ID: {}", sceneID);
+        return 0;
+    }
+    if(!scenePtr->namesToObjects.contains(name)) {
+        return 0;
+    }
+    return scenePtr->namesToObjects.at(name);
+}
+
 
 auto ObjectManager::deleteObject(SceneID sceneID, ObjectID ID) noexcept -> void {
     if (!objects.contains(ID)) {
@@ -90,4 +107,13 @@ auto ObjectManager::getMaxObjects() const noexcept -> GLuint {
 
 auto ObjectManager::getObjectsCount() const noexcept -> GLuint {
     return idSystem.getIDCount();
+}
+
+auto ObjectManager::getObject(ObjectID ID) const noexcept -> std::shared_ptr<Object> {
+    if (objects.contains(ID)) {
+        return objects.at(ID);
+    } else {
+        PRINT_ERROR("Can't find Object with given ID.", "ID: {}", ID);
+        return nullptr;
+    }
 }
