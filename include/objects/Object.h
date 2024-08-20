@@ -6,9 +6,9 @@
 
 class Object {
 public:
-    explicit Object(ObjectID ID, SceneID sceneID, const char* name = nullptr);
+    Object(ObjectID ID, SceneID sceneID, const char* name = nullptr);
     auto getID() const -> ObjectID;
-    auto getSceneID() const -> ObjectID;
+    auto getSceneID() const -> SceneID;
     auto getName() const -> const char*;
     std::unordered_set<ComponentID> components; // TODO: a map in ComponentManager has the same name, rename everything
     //also unordered_set might not be memory-efficient here
