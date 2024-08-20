@@ -42,7 +42,7 @@ auto ObjectManager::createObject(SceneID sceneID, const char* name) -> ObjectID 
         return 0;
     }
     if (name && scenePtr->namesToObjects.contains(name)) {
-        PRINT_ERROR("Given Scene already has an object with such name.", "SceneID: {}", "name: {}", sceneID, name);
+        PRINT_ERROR("Given Scene already has an object with such name.", "SceneID: {}\nname: {}", sceneID, name);
         return 0;
     }
 
@@ -68,7 +68,7 @@ auto ObjectManager::createObject(SceneID sceneID, const char* name) -> ObjectID 
     return ID;
 }
 
-auto ObjectManager::findObjectByName(SceneID sceneID, const char *name) -> ObjectID {
+auto ObjectManager::findObjectByName(SceneID sceneID, const char* name) -> ObjectID {
     const auto scenePtr = o_sceneManager.getScene(sceneID);
     if (!scenePtr) {
         PRINT_ERROR("Given Scene ID is invalid.", "ID: {}", sceneID);
@@ -109,7 +109,7 @@ auto ObjectManager::getObjectsCount() const noexcept -> GLuint {
     return idSystem.getIDCount();
 }
 
-auto ObjectManager::getObject(SceneID ID) const noexcept -> std::shared_ptr<Object> {
+auto ObjectManager::getObject(ObjectID ID) const noexcept -> std::shared_ptr<Object> {
     if (objects.contains(ID)) {
         return objects.at(ID);
     } else {
