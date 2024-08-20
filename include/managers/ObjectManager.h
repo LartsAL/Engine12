@@ -18,11 +18,13 @@ public:
     auto update() -> void;
     auto shutdown() noexcept -> void;
 
-    auto createObject(SceneID sceneID) -> ObjectID;
+    auto createObject(SceneID sceneID, const char* name = nullptr) -> ObjectID;
+    auto findObjectByName(SceneID sceneID, const char* name) -> ObjectID;
     auto deleteObject(SceneID sceneID, ObjectID ID) noexcept -> void;
     auto deleteAllObjects() noexcept -> void;
     auto getMaxObjects() const noexcept -> GLuint;
     auto getObjectsCount() const noexcept -> GLuint;
+    auto getObject(ObjectID ID) const noexcept -> std::shared_ptr<Object>;
 
 private:
     ObjectManager() noexcept;

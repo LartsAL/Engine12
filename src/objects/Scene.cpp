@@ -26,10 +26,18 @@ auto Scene::update() -> void {
     }
 }
 
-auto Scene::addObject(ObjectID objectID) noexcept -> void {
+auto Scene::addObject(ObjectID objectID, const char* name) noexcept -> void {
+    if(name && namesToObjects.contains(name)) {
+        PRINT_ERROR("Can't insert Object into Scene", "Object with given name already exist. name: {}", name);
+        return;
+    }
     const auto [it, success] = sceneObjects.insert(objectID);
     if (!success) {
         PRINT_ERROR("Can't insert Object into Scene", "Given ID already exist. ID: {}", objectID);
+        return;
+    }
+    if(name) {
+        namesToObjects.insert(std::make_pair(name, objectID));
     }
 }
 
